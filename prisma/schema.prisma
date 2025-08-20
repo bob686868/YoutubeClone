@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int    @id @default(autoincrement())
+  channelName  String
+  profilePhoto String
+
+  // Videos uploaded by the user
+  videos Video[]
+
+  // Videos viewed by the user
+  viewedVideos Video[] @relation("ViewedVideos")
+
+  // Subscription relationships
+  subscribers  Subscriber[] @relation("SubscriberToUser")
+  subscribedTo Subscriber[] @relation("UserToSubscriber")
+}
+
+model Video {
+  videoId     Int    @id @default(autoincrement())
+  duration    Int
+  likes       Int
+  thumbnail   String
+  description String
+
+  // User who uploaded the video
+  uploader   User @relation(fields: [uploaderId], references: [id])
+  uploaderId Int
+
+  // Users who viewed the video
+  viewedBy User[] @relation("ViewedVideos")
+}
+
+// Junction table for subscriptions
+model Subscriber {
+  subscriberId   Int
+  subscribedToId Int
+  createdAt      DateTime @default(now())
+
+  subscriber   User @relation("UserToSubscriber", fields: [subscriberId], references: [id])
+  subscribedTo User @relation("SubscriberToUser", fields: [subscribedToId], references: [id])
+
+  @@id([subscriberId, subscribedToId])
+}
