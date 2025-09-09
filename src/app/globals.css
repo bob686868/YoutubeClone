@@ -24,6 +24,9 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-.center{
-  tranform:translateY(-50%);
+.center {
+  tranform: translateY(-50%);
 }
+/* .bg-transparent {
+  @apply bg-gray-200 bg-opacity-50;
+} */
