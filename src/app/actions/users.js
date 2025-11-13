@@ -5,44 +5,44 @@ const prisma = new PrismaClient()
 
 export async function signup(username,email,password,profilePhoto) {
     let cookieStore=await cookies()
+    console.log("signing up")
+    let randomImageIndexes=[3,7,8,11,12,13]
     try {
         
         // Validate required fields
         if (!username || !email || !password) {
             return {
-                message: "Channel name and profile photo are required" ,
+                message:"all credentials are required",
                  status: 400 
             }
         }
-
-        // Create new user
+        console.log("creating user")
         const newUser = await prisma.user.create({
             data: {
-                email,password,username,profilePhoto
+                email,password,username,profilePhoto,profilePhoto:Math.floor(Math.random()*randomImageIndexes.length)
             }})
-        cookieStore.set({key:"id",value:newUser.id})
-
-        await prisma.user.update({
-            where:{id},
-            data:{
-                watchLater:{
-                    connect:{
-                        id
-                    }
-                },
-                watchHistory:{
-                    connect:{
-                        id
-                    }
-                }
-            }
-        })
+        cookieStore.set({name:"id",value:newUser.id})
+        let id =newUser.id
+        console.log(id)
         
+        const [v1, v2] = await Promise.all([
+            prisma.watchLater.create({data:
+                {user:{
+                    connect:{id}
+                }}}),
+                prisma.watchHistory.create({data:
+                    {user:{
+                        connect:{id}
+                    }}}),
+                ]);
+        cookieStore.set({name:"watchHistoryId",value:v2.id})
+        console.log(v1)
+        console.log(v2)
+        console.log(cookieStore.get("watchHistoryId").value)
         return { 
                 message: "User created successfully", 
-                user: newUser 
-            },
-            { status: 201 }  
+                status: 201 
+            }  
 
     } catch (error) {
         console.error('Error creating user:', error)
@@ -81,8 +81,11 @@ export async function logout(){
 
 
 export async function subscribeTo(id) {
+    console.log('subscribed backend')
+    console.log('====================')
+
     let cookieStore=await cookies()
-    let subscriberId=cookieStore.get('id')
+    let subscriberId=cookieStore.get('id').value
     try {
         // Check if subscription already exists
         const existingSubscription = await prisma.subscriber.findUnique({
@@ -105,8 +108,8 @@ export async function subscribeTo(id) {
         // Create the subscription
         const subscription = await prisma.subscriber.create({
             data: {
-                subscriberId: parseInt(body.subscriberId),
-                subscribedToId: parseInt(id)
+                    subscriberId: Number(subscriberId),
+                    subscribedToId: Number(id)
             }
         })
         
@@ -120,8 +123,9 @@ export async function subscribeTo(id) {
 } 
 
 export async function unsubscribe(subscribedToId){
+    console.log('unsubscribed backend')
     let cookieStore=await cookies()
-    let subscriberId=cookieStore.get('id')
+    let subscriberId=Number(cookieStore.get('id').value)
     try {
         // check if subscription already exist
         let subscription=await prisma.subscriber.findUnique({
@@ -145,6 +149,28 @@ export async function unsubscribe(subscribedToId){
         console.error(error.message)
         return {status:500}
     }
+}
+
+export async function getUserInfo(uploaderId){
+    try {
+        let user=await prisma.user.findUnique({
+            where:{
+                id:uploaderId
+            },
+            include:{
+                _count:{
+                    select:{
+                        subscribers:true
+                    }
+                }
+            }
+        })
+        return {user,status:200}
+    } catch (error) {
+        console.log(error.message)
+        return {status:500}
+    }
+
 }
 
 export async function getAllUsers() {
@@ -171,5 +197,38 @@ export async function getAllUsers() {
         return {
             error: e.message,status: 500 
     }
+    }
+}
+
+export async function getSubscribedTo(){
+    let cookieStore =await cookies()
+    let userId=Number(cookieStore.get('id').value)
+    try {
+        let subscribedTo=await prisma.user.findUnique({where:
+            {
+                id:userId
+        },
+        include:{
+            subscribedTo:{
+                include:{
+                    subscribedTo:{
+                        select:{
+                            username:true,
+                            profilePhoto:true,
+                            _count:{
+                                select:{
+                                    subscribers:true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    })
+    console.log(subscribedTo.subscribedTo)
+    return {subscribedTo}
+    } catch (error) {
+        console.log(error.message)        
     }
 }

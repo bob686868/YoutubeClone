@@ -7,10 +7,15 @@ export async function removeVideoFromWatchHistory(videoId) {
     let cookieStore=await cookies()
     let userId= cookieStore.get('id')
     try {
+        let id=await prisma.watchHistory.findUnique({
+            where:{
+                userId
+            }
+        }).id
         await prisma.watchHistoryVideo.delete({
             where:{
                 watchHistoryId_videoId:{
-                    watchHistoryId:userId,
+                    watchHistoryId:id,
                     videoId
                 }
             }
@@ -25,15 +30,29 @@ export async function getVideosOfWatchHistory(skip) {
     let cookieStore=await cookies()
     let id = cookieStore.get('id')
     try {
-        let watchHistory=await prisma.watchHistory.findMany({
-        where:{id},
-        include:{videos:{
+        let watchHistory=await prisma.watchHistory.findUnique({
+        where:{userId:id},
+        select:{videos:{
                 orderBy:{watchedAt:"desc"},
                 skip,
                 take:15,
-                include:{
+                select:{
                 video:{
-                    include:{uploader:true}
+                    select:
+                        {uploader:{
+                            select:{
+                                username:true
+                            }
+                        },
+                        thumbnail:true,
+                        title:true,
+                        _count:{
+                            select:{
+                                views:true
+                            }
+                        }
+                    },
+                        
                 }}
         }}})
        return {watchHistory,status:200} 

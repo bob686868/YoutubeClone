@@ -5,12 +5,15 @@ let prisma=new PrismaClient()
 
 export async function addVideoToWatchLater(videoId) {
     let cookieStore=await cookies()
-    let userId=cookieStore.get('id')
+    let userId=Number(cookieStore.get('id').value)
+    console.log('adding video to watch later backend')
     try {
-        await prisma.watchLaterVideo.create({
+        await prisma.watchLater.update({
+            where:{userId},
             data:{
-                watchLaterId:userId,
-                videoId
+                videos:{
+                    connect:{id:videoId}
+                }
             }            
         })
        return {status:200} 
@@ -21,13 +24,18 @@ export async function addVideoToWatchLater(videoId) {
 }
 export async function removeVideoFromWatchLater(videoId) {
     let cookieStore=await cookies()
-    let userId= cookieStore.get('id')
+    let userId= Number(cookieStore.get('id').value)
     try {
-        await prisma.watchLaterVideo.delete({
+
+        await prisma.watchLater.update({
             where:{
-                watchLaterId_videoId:{
-                    watchLaterId:userId,
-                    videoId
+                userId
+            },
+            data:{
+                videos:{
+                    disconnect:{
+                       id:videoId 
+                    }
                 }
             }
         }
@@ -38,24 +46,26 @@ export async function removeVideoFromWatchLater(videoId) {
         return {status:500}
     }
 }
-export async function getVideosOfWatchLater(skip) {
+export async function getVideosOfWatchLater() {
     let cookieStore=await cookies()
-    let id = cookieStore.get('id')
+    let id = Number(cookieStore.get('id').value)
     try {
         let watchLater=await prisma.watchLater.findUnique({
-        where:{id},
+        where:{userId:id},
         include:{
              videos:{
-                    include:{uploader:true}
+                    include:{uploader:true,
+                        _count:{
+                        select:{
+                            views:true
+                        }
+                    }
                 },
-                skip,
-                take:15,
-                orderBy:{
-                    watchedAt
-                }
+            },
                },
 
         })
+        console.log(watchLater)
        return {watchLater,status:200} 
     } catch (error) {
         console.error(error.message)

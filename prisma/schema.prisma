@@ -15,17 +15,17 @@ datasource db {
 }
 
 model User {
-  id           Int     @id @default(autoincrement())
+  id           Int    @id @default(autoincrement())
   username     String
-  email        String  @unique
+  email        String @unique
   password     String
-  profilePhoto String?
+  profilePhoto Int?
 
   // Videos uploaded by the user
   videos Video[]
 
   // Videos viewed by the user
-  viewedVideos Video[] @relation("ViewedVideos")
+  // viewedVideos Video[] @relation("ViewedVideos")
 
   // Subscription relationships
   subscribers  Subscriber[] @relation("SubscriberToUser")
@@ -40,7 +40,18 @@ model User {
 
   commment Comment[]
 
+  commentLikes CommentLike[]
+
   watchHistory WatchHistory?
+}
+
+model View {
+  id      Int @id @default(autoincrement())
+  videoId Int
+
+  video Video @relation(fields: [videoId], references: [id])
+
+  @@index([videoId])
 }
 
 model Subscriber {
@@ -55,19 +66,22 @@ model Subscriber {
 }
 
 model Video {
-  id          Int    @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   duration    Int
   thumbnail   String
   title       String
   description String
-  isShort     Boolean @default(false)
+  isShort     Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
   // User who uploaded the video
   uploader   User @relation(fields: [uploaderId], references: [id])
   uploaderId Int
 
   // Users who viewed the video
-  viewedBy User[] @relation("ViewedVideos")
+  // viewedBy User[] @relation("ViewedVideos")
+
+  views View[]
 
   // Likes relationship
   likes Like[]
@@ -75,7 +89,7 @@ model Video {
   // Playlist relationship
   playlists Playlist[]
 
-  watchLater WatchLaterVideo[]
+  watchLater WatchLater[]
 
   comments Comment[]
 
@@ -91,8 +105,6 @@ model Tag {
   videos Video[]
 }
 
-// Junction table for subscriptions
-
 model Like {
   id Int @id @default(autoincrement())
 
@@ -101,6 +113,21 @@ model Like {
 
   videoId Int
   video   Video @relation(fields: [videoId], references: [id])
+
+  @@unique([userId, videoId])
+}
+
+model CommentLike {
+  id Int @id @default(autoincrement())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  commentId Int
+  comment   Comment @relation(fields: [commentId], references: [id])
+
+  @@unique([userId, commentId])
+  @@index([userId, commentId])
 }
 
 model Playlist {
@@ -114,25 +141,33 @@ model Playlist {
 model WatchLater {
   id Int @id @default(autoincrement())
 
-  videos WatchLaterVideo[]
+  videos Video[]
 
-  userID Int  @unique
-  user   User @relation(fields: [userID], references: [id])
+  userId Int?  @unique
+  user   User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 model Comment {
-  id   Int    @id @default(autoincrement())
-  text String
+  id        Int      @id @default(autoincrement())
+  text      String
+  createdAt DateTime @default(now())
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
 
-  videoId Int
-  video   Video @relation(fields: [videoId], references: [id])
+  videoId Int?
+  video   Video? @relation(fields: [videoId], references: [id])
+
+  likes CommentLike[]
 
   subcomments   Comment[] @relation("CommentToSubcomment")
   commentId     Int?
   parentComment Comment?  @relation("CommentToSubcomment", fields: [commentId], references: [id])
+
+  @@index([videoId])
+  @@index([commentId])
 }
 
 model WatchHistory {
@@ -145,28 +180,29 @@ model WatchHistory {
   user   User @relation(fields: [userId], references: [id])
 }
 
-model WatchHistoryVideo{
+model WatchHistoryVideo {
   id Int @id @default(autoincrement())
 
-  watchHistoryId Int 
-  watchHistory WatchHistory @relation(fields: [watchHistoryId],references: [id])
+  watchHistoryId Int
+  watchHistory   WatchHistory @relation(fields: [watchHistoryId], references: [id])
 
-  videoId Int
-  video Video @relation(fields: [videoId],references: [id])
+  videoId   Int
+  video     Video    @relation(fields: [videoId], references: [id])
   watchetAt DateTime @default(now())
 
-  @@index([watchHistoryId,videoId])
-}
-model WatchLaterVideo{
-  id Int @id @default(autoincrement())
-
-  watchLaterId Int 
-  watchLater WatchLater @relation(fields: [watchLaterId],references: [id])
-
-  videoId Int
-  video Video @relation(fields: [videoId],references: [id])
-  watchetAt DateTime @default(now())
-
-  @@index([watchLaterId,videoId])
+  @@unique([watchHistoryId, videoId])
+  @@index([watchHistoryId, videoId])
 }
 
+// model WatchLaterVideo {
+//   id Int @id @default(autoincrement())
+
+//   watchLaterId Int
+//   watchLater   WatchLater @relation(fields: [watchLaterId], references: [id])
+
+//   videoId   Int
+//   video     Video    @relation(fields: [videoId], references: [id])
+//   watchetAt DateTime @default(now())
+
+//   @@index([watchLaterId, videoId])
+// }

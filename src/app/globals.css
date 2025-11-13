@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light !important;
 }
 
 @theme inline {
@@ -19,6 +20,10 @@
   }
 }
 
+html, body {
+  background: white !important;
+  color: black !important;
+}
 body {
   background: var(--background);
   color: var(--foreground);
@@ -30,3 +35,94 @@ body {
 /* .bg-transparent {
   @apply bg-gray-200 bg-opacity-50;
 } */
+
+
+
+
+/* styles/globals.css (or imported global css) */
+
+/* Required Tailwind directives (if not already present) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Banner custom styling to match YouTube's look */
+.watchlater-banner {
+  /* dark red gradient background with soft vignette */
+  background: radial-gradient(1200px 400px at 10% 30%, rgba(255,255,255,0.02), transparent 5%),
+              linear-gradient(90deg, #701a1a 0%, #431313 45%, #2a0c0c 100%);
+  box-shadow: inset 0 -20px 60px rgba(0,0,0,0.45), 0 2px 12px rgba(0,0,0,0.35);
+  border-radius: 16px;
+}
+
+/* Inner translucency/blur behind heading (subtle YouTube-like gloss) */
+.banner-inner::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 20%);
+  mix-blend-mode: overlay;
+  border-radius: inherit;
+}
+
+/* play button: white pill like YouTube */
+.play-btn {
+  background: #fff;
+  color: #111;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.15), 0 6px 14px rgba(0,0,0,0.25);
+  transition: transform .08s ease, background .08s ease;
+}
+.play-btn:hover { transform: translateY(-1px); }
+
+/* shuffle button: darker pill */
+.shuffle-btn {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: background .08s ease, transform .08s ease;
+}
+.shuffle-btn:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
+
+/* small circular icon buttons on the right */
+.icon-circle {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .08s ease, transform .08s ease;
+  border-radius: 9999px;
+}
+.icon-circle:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+
+/* Responsive tweaks */
+@media (max-width: 767px) {
+  .banner-inner { padding-left: 1rem; padding-right: 1rem; }
+  .right-icons { display: none !important; } /* matches screenshot: icons show on larger screens only */
+  .thumb { max-height: 200px; }
+}
+
+.watchlater-banner {
+  background: radial-gradient(1200px 400px at 10% 30%, rgba(255,255,255,0.02), transparent 5%),
+              linear-gradient(90deg, #701a1a 0%, #431313 45%, #2a0c0c 100%);
+  box-shadow: inset 0 -20px 60px rgba(0,0,0,0.45), 0 2px 12px rgba(0,0,0,0.35);
+}
+
+/* Ensure full responsiveness */
+@media (max-width: 1024px) {
+  .watchlater-banner {
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .watchlater-banner img {
+    max-height: 220px;
+  }
+}

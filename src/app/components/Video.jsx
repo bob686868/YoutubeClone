@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import Option from "./Option";
+
 import { BsThreeDotsVertical } from "react-icons/bs";
 import {
   MdOutlineWatchLater,
@@ -7,8 +9,12 @@ import {
   MdFlag,
 } from "react-icons/md";
 import { RiShareForwardLine } from "react-icons/ri";
+
 import Image from "next/image";
-import Option from "./Option";
+import Link from "next/link";
+import { formatDuration, timeAgo } from "../utils";
+import WatchLater from "./WatchLater";
+import WatchLaterButton from "./WatchLaterButton";
 
 const options = [
   { label: "Save to Watch later", icon: <MdOutlineWatchLater size={20} /> },
@@ -19,19 +25,19 @@ const options = [
 ];
 
 const Video = ({
-  imgUrl,
-  title,
-  name,
-  profilePhoto,
-  views,
-  duration,
-  date,
+video
 }) => {
+  const thumbnailUrl=(t)=>"/thumbnails/thumbnail"+String(t)+".jpg"
+  
   let [isVisible, setIsVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState("bottom"); // 'bottom' or 'top'
   const dotsRef = useRef(null);
   const menuRef = useRef(null);
-
+  console.log(video)
+  console.log('========================')
+  let {id,uploader,title,description,duration,createdAt,thumbnail}=video
+  let {name,uploaderId}=uploader
+  let imgUrl=thumbnailUrl(thumbnail)
   useEffect(() => {
     if (isVisible) {
       // Prevent screen shift when hiding scrollbar
@@ -79,52 +85,51 @@ const Video = ({
   }, [isVisible]);
 
   return (
-    <div className="w-100 h-83 flex flex-col mx-auto">
-      <Image
-        alt="profilePhoto"
-        width={200}
-        height={120}
-        src="/profilePhoto.jpg"
-        className="w-full h-[75%] mb-3 rounded-md"
-      ></Image>
+    <div className=" flex flex-col mx-4 h-65">
+      <Link href={`/videos/${id}`}>
+        <Image
+          alt="video thumbnail"
+          width={150}
+          height={150}
+          src={imgUrl}
+          className="w-full h-40 object-cover mb-3 rounded-md cursor-pointer"
+          ></Image>
+        </Link>
 
       <div className="flex">
-        <Image
-          alt="profilePhoto"
-          src="/profilePhoto.jpg"
-          width={20}
-          height={20}
-          className="size-5 mt-[2px] rounded-full mr-2"
-        ></Image>
+        <Link href={`/user/${uploaderId}/home`}>
+          <Image
+            alt="profilePhoto"
+            src="/profilePhoto.jpg"
+            width={150}
+            height={150}
+            className="size-5 mt-[2px]  rounded-full mr-3 "
+            ></Image>
+          </Link>
 
-        <div className="flex flex-col">
-          <div className="font-bold mb-3">
-            “Stealth Mode Activated: Ninja Skills You Won't Believe!”
+        <div className="flex flex-col w-full">
+          <div className="font-bold text-[15px] mb-3">{title}</div>
+          <div className="text-gray-500 mb-1">
+            {/* {name} */}
+            {name}
           </div>
-          <div className="text-gray-500 mb-1">{/* {name} */}Ninja</div>
           <div className="text-sm text-gray-500">
             {/* {views}  •  {date} ago */}
-            127k views • 5 days ago
+            {video._count.views} views • {timeAgo(createdAt)}
           </div>
         </div>
         <div className="justify-self-end">
           <div className="relative">
-            <BsThreeDotsVertical
+            {/* <BsThreeDotsVertical
               ref={dotsRef}
               size={20}
               className="w-6 h-6 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
-                setIsVisible(true);
+                setIsVisible(!isVisible);
               }}
-            />
-            {isVisible && (
-              <Option
-                options={options}
-                menuRef={menuRef}
-                position={menuPosition}
-              />
-            )}
+            /> */}
+              <WatchLaterButton videoId={video.id}></WatchLaterButton>
           </div>
         </div>
       </div>

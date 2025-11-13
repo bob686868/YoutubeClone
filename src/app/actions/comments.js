@@ -2,28 +2,40 @@ import { PrismaClient } from "@prisma/client";
 import { cookies } from "next/headers";
 
 let prisma=new PrismaClient()
-export async function addComment(commentedOnId,text){
+
+export async function addComment(text,videoId){
+    let cookieStore=await cookies()
+    let userId=Number(cookieStore.get('id').value)
+    try {
+           await prisma.comment.create({
+                data:{
+                    text,
+                    commentId,
+                    userId,
+                    videoId
+                },
+            })
+    } catch (error) {
+        console.error(error.message)
+        return {status:500}
+    }
+}
+export async function addReply(text,commentId){
+    console.log("entered add reply:")
+    console.log(text)
+    let cookieStore=await cookies()
+    let userId=Number(cookieStore.get('id').value)
 
     try {
-        if(!commentedOnId){
-            await prisma.comment.create({
-                data:{
-                    text
-                }
-            })
-        }
-        else{
             await prisma.comment.create({
                 data:{
                     text,
-                    parentComment:{
-                        connect:{
-                            id:commentedOnId
-                        }
-                    }
-                },
-            })
-        }
+                    userId,
+                    commentId
+                }
+            })        
+         
+        console.log("added reply")
         return {status:200}
     } catch (error) {
         console.error(error.message)
@@ -58,32 +70,92 @@ export async function editComment(id,text){
     }
 }
 
-export async function getComments({videoId,commentId}){
+
+export async function getComments({videoId}){
+    console.log('entered get comments')
+    let cookieStore=await cookies()
+    let userId =Number(cookieStore.get('id').value)
     try {
-        let comments;
-        if(!commentId){
-            comments=await prisma.comment.findMany({
+            let comments=await prisma.comment.findMany({
                 where:{
-                    videoId
+                    videoId,
+                    commentId:null
                 },
-                include:{
-                    user
+                select:{
+                    id:true,
+                    text:true,
+                    createdAt:true,
+                    user:true,
+                    _count:{
+                        select:{
+                            subcomments:true,
+                            likes:true
+                        },
+                        
+                    },
+                    likes:{
+                        where:{userId},
+                        select:{id:true},
+                        take:1
+                    }
                 }
             })
-        }
-        else{
-            comments=await prisma.comment.findMany({
+            console.log("got comments")
+            let formatted=comments.map((c)=>({
+                id:c.id,
+                text:c.text,
+                createdAt:c.createdAt,
+                user:c.user,
+                replyCount:c._count.subcomments,
+                likedByMe: c.likes.length>0,
+                likesCount:c._count.likes
+            }
+        ))
+            console.log("got formatted comments")
+            return {comments:formatted,status:200}
+        } catch (error) {
+            console.error(error.message)
+            return {status:500}   
+            }
+    }
+
+export async function getReplies({commentId}){
+        let cookieStore=await cookies()
+        let userId =Number(cookieStore.get('id').value)
+        try{
+            let replies=await prisma.comment.findMany({
                 where:{
                     commentId
                 },
-                include:{
-                    user
-                }})
-            }
-            return {comments,status:200}
+                select:{
+                    id:true,
+                    text:true,
+                    createdAt:true,
+                    _count:{
+                        select:{likes:true}
+                    },
+                    user:{
+                        select:{id:true,username:true,profilePhoto:true}
+                    },
+                    likes:{
+                        where:{userId},
+                        select:{id:true},
+                        take:1
+                    }
+                }
+
+            })
+            let formatted=replies.map((r)=>({
+                id:r.id,
+                text:r.text,
+                createdAt:r.createdAt,
+                user:r.user,
+                likedByMe:r.likes.length>0,
+                likesCount:c._count.likes
+            }))
+            return {comments:formatted,status:200}
+        } catch (error) {
+        console.error(error.message)
+        return {status:500}   
         }
-     catch (error) {
-     console.error(error.message)
-     return {status:500}   
-    }
 }

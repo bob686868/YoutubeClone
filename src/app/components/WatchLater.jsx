@@ -5,44 +5,61 @@ import { TbDotsVertical } from "react-icons/tb";
 import { CiShuffle } from "react-icons/ci";
 const WatchLater = () => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 bg-gray-400/50 p-5">
+    <div className="grid grid-cols-1 lg:grid-cols-5  p-5">
       {/* Control Panel */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 mb-5 lg:col-span-1">
-        <Image
-          src="/profilePhoto.jpg"
-          width={200}
-          height={200}
-          className="rounded-sm mx-auto"
-        />
-        <div className="flex-col h-full justify-center">
-          <h1 className="text-white text-bold text-lg mb-5 ">Watch Later</h1>
-          <div className="flex justify-between">
-            <p className="flex gap-x-2 text-sm text-gray-400">
-              <span>63 videos</span>
-              <span>No views</span>
-              <span>Updated today</span>
-            </p>
+      <div className="bg-gradient-to-b lg:col-span-2 from-gray-400 to-gray-600 p-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[360px,1fr] gap-6">
+          {/* Thumbnail */}
+          <div className="flex justify-center lg:justify-start">
+            <Image
+              src="/profilePhoto.jpg"
+              width={360}
+              height={202}
+              className="rounded-md object-cover w-full max-w-[360px] aspect-video"
+              alt="Playlist Thumbnail"
+            />
+          </div>
+
+          {/* Info + Controls */}
+          <div className="flex flex-col justify-between">
+            {/* Title & Meta */}
             <div>
-              <div className="">
-                <MdOutlineFileDownload className="bg-gray-200 size-10 text-white rounded-full p-3 mr-2" />
-                <TbDotsVertical className="bg-gray-200 text-white size-10 rounded-full p-3 " />
+              <h1 className="text-white text-2xl font-bold">Watch later</h1>
+              <p className="text-gray-300 text-sm mt-1">
+                67 videos • No views • Updated today
+              </p>
+            </div>
+
+            {/* Buttons & Actions */}
+            <div className="flex items-center mt-6 gap-3">
+              {/* Play All */}
+              <button className="flex items-center px-5 py-2.5 rounded-full bg-white hover:bg-gray-200 transition shadow-sm">
+                <svg className="w-5 h-5 mr-2 fill-black" viewBox="0 0 16 16">
+                  <polygon points="0,0 16,8 0,16"></polygon>
+                </svg>
+                <span className="text-sm font-medium text-black">Play all</span>
+              </button>
+
+              {/* Shuffle */}
+              <button className="flex items-center px-5 py-2.5 rounded-full bg-gray-300 hover:bg-gray-400 transition shadow-sm">
+                <CiShuffle className="w-5 h-5 mr-2 text-black" />
+                <span className="text-sm font-medium text-black">Shuffle</span>
+              </button>
+
+              {/* Right-side icons */}
+              <div className="flex gap-2 ml-auto">
+                <button className="p-2.5 bg-gray-600 hover:bg-gray-500 rounded-full transition">
+                  <MdOutlineFileDownload className="w-5 h-5 text-white" />
+                </button>
+                <button className="p-2.5 bg-gray-600 hover:bg-gray-500 rounded-full transition">
+                  <TbDotsVertical className="w-5 h-5 text-white" />
+                </button>
               </div>
             </div>
           </div>
-
-      </div>
-        <div className="grid grid-cols-2 gap-x-1.5 mt-2 ">
-          <button className="px-3 py-2 rounded-full bg-white">
-            <span className="border-l-8 border-l-black border-t-8 border-t-transparent border-b-8 border-b-transparent w-0 h-0"></span>
-            <span>Play All</span>
-          </button>
-          <button className="px-auto   rounded-full bg-gray-200/90">
-            <CiShuffle className="mr-2 size-4" />
-            <span>Shuffle</span>
-          </button>
         </div>
       </div>
-      {/* Videos */}
+
       <div className=""></div>
     </div>
   );
