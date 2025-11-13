@@ -1,27 +1,23 @@
-'use client';
-import { useState } from 'react';
-import Image from 'next/image';
+"use client";
+import { useState } from "react";
+import Image from "next/image";
 import { IoMdMenu } from "react-icons/io";
 import { IoMdMic } from "react-icons/io";
 import { IoMdNotifications } from "react-icons/io";
 import { IoMdSearch } from "react-icons/io";
 import { FaPlus } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import MobileSidebar from './MobileSidebar';
-import Link from 'next/link';
+import MobileSidebar from "./MobileSidebar";
+import Link from "next/link";
 
 const Header = () => {
- 
-
   return (
     <>
       <header className="fixed top-0 left-0 right-0 h-14 bg-neutral-800 border-b z-40">
         <div className="flex justify-between items-center h-full px-4">
           {/* Left section */}
           <div className="flex items-center gap-4">
-            <button 
-              className="p-2 hover:bg-neutral-700 rounded-full group relative"
-            >
+            <button className="p-2 hover:bg-neutral-700 rounded-full group relative">
               <IoMdMenu size={24} />
               <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
                 <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
@@ -30,9 +26,9 @@ const Header = () => {
                 </div>
               </div>
             </button>
-  
+
             <div className="flex items-center gap-1">
-              <Image 
+              <Image
                 src="/youtube.png"
                 alt="YouTube"
                 width={60}
@@ -40,7 +36,7 @@ const Header = () => {
                 className="inline-block "
                 priority
               />
-       
+
               <span className="text-xl font-semibold -ml-3">YouTube</span>
             </div>
           </div>
@@ -63,7 +59,7 @@ const Header = () => {
                 </div>
               </button>
             </div>
-            
+
             <button className="ml-4 p-2 hover:bg-neutral-700 rounded-full group relative">
               <IoMdMic size={24} />
               <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
@@ -110,8 +106,6 @@ const Header = () => {
           </div>
         </div>
       </header>
-
-     
     </>
   );
 };
