@@ -1,21 +1,22 @@
 import Image from "next/image";
-import ShowReplies from "./ShowReplies";
 import { timeAgo } from "@/app/utils";
 import LikeButton from "./LikeButton";
 import { addReply } from "./actions";
 import ReplyButton from "./ReplyButton";
+import { formatProfileImageUrl } from "@/app/utils";
 const Comment = ({ profilePhoto, username, time, text, likesCount,commentId,isLikedByMe }) => {
   time=timeAgo(time)
+  console.log(profilePhoto+ "-adfdfidafin")
   // console.log(profilePhoto,username,time,text,likesCount,commentId)
   return (
     <div className="flex gap-3">
       {/* Avatar */}
-      {profilePhoto && <Image
-        src={profilePhoto}
+      {profilePhoto!=null && <Image
+        src={formatProfileImageUrl(profilePhoto)}
         width={123}
         height={123}
         alt={username}
-        className="w-10 h-10 rounded-full object-cover"
+        className="w-10 h-10 rounded-full object-cover mr-1"
       />}
 
       {/* Comment Body */}
@@ -23,11 +24,11 @@ const Comment = ({ profilePhoto, username, time, text, likesCount,commentId,isLi
         {/* User name and time */}
         <div className="flex items-center gap-2">
           <span className="font-semibold text-sm">{username}</span>
-          <span className="text-gray-500 text-xs">{time}</span>
+          <span className="text-neutral-300 text-xs">{time}</span>
         </div>
 
         {/* Comment text */}
-        <p className="text-gray-700 text-sm">{text}</p>
+        <p className="text-neutral-100 text-sm">{text}</p>
 
         {/* Actions: Like */}
         <div className="flex  gap-4 mt-1">

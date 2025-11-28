@@ -1,0 +1,9 @@
+"use server"
+
+import { redirect } from "next/navigation"
+
+export async function searchVideosFrontEnd(formData){
+    console.log('enterd')
+    let searchText=formData.get('searchText')
+    redirect(`/results?searchQuery=${searchText}`)
+}

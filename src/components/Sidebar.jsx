@@ -47,7 +47,7 @@ export default function Sidebar() {
                         {/* Library Section */}
                         <div className="space-y-2">
                             {isOpen && <h3 className="px-2 text-sm font-semibold text-gray-500">Library</h3>}
-                            <Link href="/history" className="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg">
+                            <Link href="/watchHistory" className="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg">
                                 <History className="w-6 h-6" />
                                 {isOpen && <span>History</span>}
                             </Link>

@@ -9,12 +9,18 @@ const page = async ({ params }) => {
 
   console.log(videos);
   return (
-    <div>
+    <div className="px-4 bg-neutral-900">
       <ProfileHeader activeTab={"videos"} id={id}></ProfileHeader>
+      
+
+      <div className="py-3 grid grid-cols-1 gap-2 min-h-[80vh] sm:grid-cols-2 lg:grid-cols-3">
       {videos.map((v) => (
+        
         <Video video={v}></Video>
       ))}
-    </div>
+      </div>
+      </div>
+
   );
 };
 

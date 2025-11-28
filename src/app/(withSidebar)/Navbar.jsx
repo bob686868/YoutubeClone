@@ -1,11 +1,11 @@
-"use client";
 
 import { Search, Mic, Bell, Video, User } from "lucide-react";
 import Image from "next/image";
+import { searchVideosFrontEnd } from "./actions";
 
 export default function Navbar() {
   return (
-    <nav className="flex justify-between items-center w-full px-4 lg:px-6 bg-neutral-800">
+<nav className="flex h-14 items-center justify-between w-full px-4 lg:px-6 bg-neutral-800">
       {/* Left section (Logo) */}
       <div className="hidden lg:flex items-center space-x-2">
         <Image
@@ -20,15 +20,26 @@ export default function Navbar() {
 
       {/* Middle section (Search bar) */}
       <div className="flex flex-1 justify-center max-w-[600px]">
-        <div className="flex items-center w-full border border-gray-300 rounded-full overflow-hidden">
-          <input
-            type="text"
-            placeholder="Search"
-            className="w-full px-4 py-2 outline-none text-sm"
-          />
-          <button className="bg-neutral-700 px-4 py-2 border-l border-neutral-700 hover:bg-neutral-600">
-            <Search size={20} className="bg-neutral-700"/>
-          </button>
+        <div className="flex items-center border border-gray-300 rounded-full overflow-hidden">
+          <form
+            action={searchVideosFrontEnd}
+            className="flex items-center w-full border border-gray-300 rounded-full overflow-hidden"
+          >
+            <input
+              type="text"
+              placeholder="Search"
+              name="searchText"
+              className="w-[20px] inline px-4 py-2 outline-none text-sm"
+            />
+            
+            <button
+              type="submit"
+              className="bg-neutral-700 w-5px-4 py-2 border-l border-neutral-700 hover:bg-neutral-600"
+            >
+              <Search size={20} />
+            </button>
+          </form>
+
         </div>
         <button className="ml-3 bg-neutral-700 hover:bg-neutral-700 p-2 rounded-full">
           <Mic size={20} />

@@ -1,13 +1,19 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState ,useActionState} from "react";
 import Image from "next/image";
 import { ChevronDown } from "lucide-react";
+import toast from "react-hot-toast";
 
 const UploadVideoClient = ({
   availableTags,
   availableThumbnails,
   serverAction,
 }) => {
+    const [state, formAction] = useActionState(serverAction, { success: false });
+
+  if (state.success) {
+  }
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [thumbnail, setThumbnail] = useState("");
@@ -28,7 +34,8 @@ const UploadVideoClient = ({
       <div className="bg-neutral-800 w-full max-w-3xl p-6 rounded-lg shadow-md">
         <h1 className="text-2xl font-semibold mb-6">Upload Video</h1>
 
-        <form action={serverAction} className="space-y-5">
+
+        <form action={(formData)=>{formAction(formData);toast.success("Video uploaded successfully!")}} className="space-y-5">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium mb-1">Title</label>

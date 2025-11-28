@@ -10,30 +10,13 @@ const CommentSection =async  ({ videoId }) => {
     }
     let {comments}=await getComments(videoId)
 
-//     const comments = [
-//   {
-//     avatar: "https://i.pravatar.cc/40?img=1",
-//     username: "John Doe",
-//     time: "2 hours ago",
-//     text: "This is an awesome video!",
-//     likes: 12,
-//   },
-//   {
-//     avatar: "https://i.pravatar.cc/40?img=2",
-//     username: "Jane Smith",
-//     time: "1 day ago",
-//     text: "Thanks for sharing this!",
-//     likes: 5,
-//   },
-// ];
-
   return (
-    <section className="w-full flex flex-col gap-6 px-4 md:px-8 lg:px-16 mt-6">
+    <section className="w-full text-neutral-100 flex flex-col gap-6 px-4 md:px-8 lg:px-16 mt-6">
+      <h2 className="font-semibold text-lg">{comments.length} Comments</h2>
       <form action={submitComment} >
-       <input type="text" name="comment" className="border"/>
+       <input type="text" name="comment" placeholder="Add a comment" className=" border-b p-1 border-neutral-500 focus:border-neutral-100 focus:outline-none block w-[90%] mx-auto rounded-sm "/>
        <input type="hidden" name="videoId" value={videoId}/>
       </form>
-      <h2 className="font-semibold text-lg">{comments.length} Comments</h2>
 
       <div className="flex flex-col gap-4">
         {comments.length>0 && comments.map((c, index) => (

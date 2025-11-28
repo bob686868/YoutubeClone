@@ -28,7 +28,8 @@ export async function removeVideoFromWatchHistory(videoId) {
 }
 export async function getVideosOfWatchHistory(skip) {
     let cookieStore=await cookies()
-    let id = cookieStore.get('id')
+    let id = Number(cookieStore.get('id').value)
+    console.log(id)
     try {
         let watchHistory=await prisma.watchHistory.findUnique({
         where:{userId:id},
@@ -44,8 +45,10 @@ export async function getVideosOfWatchHistory(skip) {
                                 username:true
                             }
                         },
+                        createdAt:true,
                         thumbnail:true,
                         title:true,
+                        duration:true,
                         _count:{
                             select:{
                                 views:true

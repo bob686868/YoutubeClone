@@ -1,29 +1,5 @@
 import Image from "next/image";
 
-// Mock data
-const videos = [
-  {
-    id: 1,
-    title: "React Tutorial",
-    thumbnail: "https://placehold.co/320x180",
-    views: "1.2M",
-    uploaded: "2 days ago",
-  },
-  {
-    id: 2,
-    title: "Tailwind CSS Tips",
-    thumbnail: "https://placehold.co/320x180",
-    views: "800K",
-    uploaded: "1 week ago",
-  },
-  {
-    id: 3,
-    title: "JavaScript Tricks",
-    thumbnail: "https://placehold.co/320x180",
-    views: "500K",
-    uploaded: "1 month ago",
-  },
-];
 
 const posts = [
   { id: 1, content: "Just uploaded a new video! Check it out!" },

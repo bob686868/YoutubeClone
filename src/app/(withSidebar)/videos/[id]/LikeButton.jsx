@@ -16,12 +16,12 @@ const LikeButton = ({ likesCount, isLikedByMe,commentId }) => {
   let [likesCountState,setLikesCountState]=useState(likesCount)
   let formRef=useRef()
   return (
-    <button className="flex items-center gap-1 text-gray-500 hover:text-gray-700 text-xs">
+    <button className="flex items-center gap-1 text-neutral-200    text-xs">
       <span>{likesCountState}</span>
       <form ref={formRef} action={toggleLikeFrontEnd}>
 
         <button type="button" onClick={updateLikeButtonState}>
-          <FaThumbsUp className={likedByMe ? `text-blue-500 cursor-pointer` : "text-gray-300 cursor-pointer"} />
+          <FaThumbsUp className={likedByMe ? `text-blue-500 cursor-pointer` : " text-gray-300 hover:text-neutral-200 cursor-pointer"} />
         </button>
         <input type="hidden" value={ likedByMe ? "1" : "0"} name="hasLiked"/>
         <input type="hidden" value={commentId} name="commentId"/>

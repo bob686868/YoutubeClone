@@ -20,7 +20,7 @@ export default function WithSidebarLayout({ children }) {
       <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} /> */}
     <HeaderWithSidebar></HeaderWithSidebar>
       {/* Page Content */}
-      <main className="flex-1 lg:ml-64 bg-neutral-800">
+      <main className="flex-1 lg:ml-64 mt-5 bg-neutral-800">
         {children}
       </main>
     </div>

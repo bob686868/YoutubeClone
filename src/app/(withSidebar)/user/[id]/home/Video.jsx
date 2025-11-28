@@ -30,18 +30,18 @@ export default function VideoCard({ video }) {
         {/* Channel Avatar Placeholder (YouTube hides this on profile page, but we keep it optional) */}
         {/* <Image src={avatar} width={36} height={36} alt={channelName} className="rounded-full mr-3" /> */}
 
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full ">
           <h3
-            className="text-sm font-medium  leading-snug  line-clamp-2"
+            className="text-[17px] font-medium text-neutral-100  leading-snug  line-clamp-2"
             title={title}
           >
             {title}
           </h3>
 
-          <div className="text-[0.875rem] text-gray-400  flex flex-1 justify-between">
+          <div className="text-[0.75rem] text-gray-400  flex flex-1 w-full justify-between">
             <div>
               <p className="hover:text-white transition-colors">{username}</p>
-              <p className="text-gray-400 text-sm">
+              <p className="text-neutral-300 ">
                 {_count.views} views • {timeAgo(createdAt)}
               </p>
             </div>

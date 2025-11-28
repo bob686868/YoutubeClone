@@ -1,20 +1,22 @@
 import { PrismaClient } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
 let prisma=new PrismaClient()
 
 export async function addComment(text,videoId){
     let cookieStore=await cookies()
+    videoId=Number(videoId)
     let userId=Number(cookieStore.get('id').value)
     try {
            await prisma.comment.create({
                 data:{
                     text,
-                    commentId,
                     userId,
                     videoId
                 },
             })
+            revalidatePath(`/videos/${videoId}`)
     } catch (error) {
         console.error(error.message)
         return {status:500}

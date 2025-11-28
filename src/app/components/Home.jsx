@@ -52,12 +52,8 @@ export default function Home({tags,videos}) {
   return (
     <div className="relative">
       {/* <Sidebar /> */}
-        <p className="text-pink-400">
-
-        sfdpghsfhiodpgsdhigfop
-        </p>
       <div className="ml-[30px]">
-        <Header />
+        {/* <Header /> */}
         <main className="w-full flex flex-col pt-14">
           <div className="flex items-center relative">
             {showLeftArrow && (

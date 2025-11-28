@@ -9,13 +9,13 @@ export default async function WatchLaterPage() {
   let videos=user.likes.map((l)=>l.video)
   console.dir(videos,{depth:null,colors:true})
   return (
-    <div className="min-h-screen bg-white  text-neutral-900">
+    <div className="min-h-screen bg-neutral-900 text-neutral-100">
       <div className="flex">
-        <main className="flex-1 md:ml-5 p-4 sm:p-6">
+        <main className="flex-1 md:ml-5 p-4 sm:p-6 mt-5">
           {/* <h1 className="text-xl sm:text-2xl font-semibold mb-4">
             Liked Videos
           </h1> */}
-          <VideoGrid videos={videos} />
+          <VideoGrid title={"Liked Videos"} videos={videos} />
         </main>
       </div>
     </div>

@@ -6,6 +6,8 @@ const prisma = new PrismaClient()
 export async function signup(username,email,password,profilePhoto) {
     let cookieStore=await cookies()
     console.log("signing up")
+    email = email.trim().toLowerCase();
+
     let randomImageIndexes=[3,7,8,11,12,13]
     try {
         
@@ -36,8 +38,7 @@ export async function signup(username,email,password,profilePhoto) {
                     }}}),
                 ]);
         cookieStore.set({name:"watchHistoryId",value:v2.id})
-        console.log(v1)
-        console.log(v2)
+
         console.log(cookieStore.get("watchHistoryId").value)
         return { 
                 message: "User created successfully", 
@@ -61,6 +62,79 @@ export async function signup(username,email,password,profilePhoto) {
         }
     }
 }
+
+export async function login(email, password) {
+  let cookieStore = await cookies();
+  email = email.trim().toLowerCase();
+
+  try {
+    // Validate required fields
+    if (!email || !password) {
+      return {
+        error: "Email and password are required",
+        status: 400,
+      };
+    }
+
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+    console.log(user)
+
+    if (!user) {
+      return {
+        error: "No account found with this email",
+        status: 404,
+      };
+    }
+
+    // Validate password
+    if (user.password !== password) {
+      return {
+        error: "Invalid email or password",
+        status: 401,
+      };
+    }
+
+    // Auth success → set cookies
+    cookieStore.set({
+      name: "id",
+      value: user.id,
+    });
+
+    // Check the user’s watchHistory; create if not exists
+    let watchHistory = await prisma.watchHistory.findFirst({
+      where: { userId: user.id },
+    });
+
+    if (!watchHistory) {
+      watchHistory = await prisma.watchHistory.create({
+        data: {
+          user: { connect: { id: user.id } },
+        },
+      });
+    }
+
+    cookieStore.set({
+      name: "watchHistoryId",
+      value: watchHistory.id,
+    });
+
+    return {
+      message: "Login successful",
+      status: 200,
+    };
+  } catch (error) {
+    console.error("Login error:", error);
+
+    return {
+      error: "Something went wrong during login",
+      status: 500,
+    };
+  }
+}
+
 
 export async function logout(){
     let cookieStore=await cookies()
@@ -213,6 +287,7 @@ export async function getSubscribedTo(){
                 include:{
                     subscribedTo:{
                         select:{
+                            id:true,
                             username:true,
                             profilePhoto:true,
                             _count:{

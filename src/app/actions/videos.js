@@ -131,7 +131,7 @@ export async function getVideo(videoId){
             }
         },
         update:{
-            watchetAt:new Date()
+            watchedAt:new Date()
         },
         create:{
             watchHistoryId:watchHistoryId,
@@ -245,4 +245,57 @@ export async function getLikedVideos(){
         console.log(error.message)
     }
 
+}
+
+
+export async function searchVideos(searchTerm, skip = 0, take = 15) {
+  try {
+    const videos = await prisma.video.findMany({
+      where: {
+        OR: [
+          {
+            title: {
+              contains: searchTerm,
+              mode: "insensitive",
+            },
+          },
+          {
+            description: {
+              contains: searchTerm,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        thumbnail: true,
+        createdAt: true,
+        duration: true,
+        uploader: {
+          select: {
+            username: true,
+            id:true
+          },
+        },
+        isShort: true,
+        _count: {
+          select: {
+            views: true,
+          },
+        },
+      },
+      skip,
+      take,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return { status: 200, videos };
+  } catch (error) {
+    console.error("❌ Error searching videos:", error);
+    return { status: 500, message: "Internal server error" };
+  }
 }

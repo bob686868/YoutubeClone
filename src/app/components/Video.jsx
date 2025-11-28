@@ -12,8 +12,7 @@ import { RiShareForwardLine } from "react-icons/ri";
 
 import Image from "next/image";
 import Link from "next/link";
-import { formatDuration, timeAgo } from "../utils";
-import WatchLater from "./WatchLater";
+import { formatDuration, formatProfileImageUrl, timeAgo } from "../utils";
 import WatchLaterButton from "./WatchLaterButton";
 
 const options = [
@@ -35,8 +34,9 @@ video
   const menuRef = useRef(null);
   console.log(video)
   console.log('========================')
-  let {id,uploader,title,description,duration,createdAt,thumbnail}=video
+  let {id,uploader,title,description,duration,createdAt,thumbnail,profilePhoto}=video
   let {name,uploaderId}=uploader
+  console.log(id)
   let imgUrl=thumbnailUrl(thumbnail)
   useEffect(() => {
     if (isVisible) {
@@ -85,14 +85,14 @@ video
   }, [isVisible]);
 
   return (
-    <div className=" flex flex-col mx-4 h-65">
+    <div className=" flex flex-col mx-4 h-65 ">
       <Link href={`/videos/${id}`}>
         <Image
           alt="video thumbnail"
           width={150}
           height={150}
           src={imgUrl}
-          className="w-full h-40 object-cover mb-3 rounded-md cursor-pointer"
+          className="w-full  h-40 object-cover mb-3 rounded-md cursor-pointer"
           ></Image>
         </Link>
 
@@ -100,7 +100,7 @@ video
         <Link href={`/user/${uploaderId}/home`}>
           <Image
             alt="profilePhoto"
-            src="/profilePhoto.jpg"
+            src={formatProfileImageUrl(profilePhoto)}
             width={150}
             height={150}
             className="size-5 mt-[2px]  rounded-full mr-3 "
@@ -129,7 +129,7 @@ video
                 setIsVisible(!isVisible);
               }}
             /> */}
-              <WatchLaterButton videoId={video.id}></WatchLaterButton>
+              <WatchLaterButton videoId={id}></WatchLaterButton>
           </div>
         </div>
       </div>

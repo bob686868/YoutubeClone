@@ -27,11 +27,11 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         <div className="flex items-center p-[18px] lg:p-[13.5px] border-b">
           <button
             onClick={() => setIsOpen(false)}
-            className="lg:hidden mr-2 cursor-pointer text-neutral-100"
+            className="lg:hidden mr-4    cursor-pointer text-neutral-100"
           >
             ✕
           </button>
-          <h1 className="text-xl font-semibold text-neutral-100">YouTube</h1>
+          <h1 className="text-xl font-semibold  text-neutral-100">YouTube</h1>
         </div>
 
         {/* Sidebar links */}
@@ -64,7 +64,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           <hr className="my-2" />
 
           <Link
-            href="/history"
+            href="/watchHistory"
             className="flex items-center px-6 py-3 hover:bg-neutral-700"
           >
             <Clock className="mr-5" size={22} />
@@ -80,7 +80,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           </Link>
 
           <Link
-            href={`/watchLater`}
+            href='/watchLater'
             className="flex items-center px-6 py-3 hover:bg-neutral-700"
           >
             <MdOutlineWatchLater className="mr-5" size={22} />

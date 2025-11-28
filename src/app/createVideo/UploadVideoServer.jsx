@@ -3,8 +3,10 @@ import UploadVideoClient from "./UploadVideoClient";
 import { addVideo } from "../actions/videos.js";
 import { getTags } from "../actions/tags";
 const UploadVideoServer = async () => {
-  const uploadVideo = async (formData) => {
+  const uploadVideo = async (prevState,formData) => {
     "use server";
+    console.log(formData)
+    console.log('=-=====================')
     const title = formData.get("title");
     const description = formData.get("description");
     let thumbnail = formData.get("thumbnail");
@@ -13,6 +15,7 @@ const UploadVideoServer = async () => {
     const isShort = formData.get("isShort") === "on"; // Checkbox value is 'on' if checked
     const tags = tagsString ? tagsString.split(",") : [];
     await addVideo(title, description, thumbnail, 120, tags, isShort);
+      return { success: true };
   };
   const thumbnails = [
     "/thumbnails/thumbnail1.jpg",

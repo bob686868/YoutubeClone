@@ -3,16 +3,37 @@ import React, { useState, useRef, useEffect } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { addToWatchLater } from "../(withSidebar)/user/[id]/home/actions";
 import { MdOutlineWatchLater } from "react-icons/md";
+
 export default function WatchLaterButton({ videoId }) {
   const [showButton, setShowButton] = useState(false);
+  const [popupStyle, setPopupStyle] = useState({});
   const menuRef = useRef(null);
-  console.log(menuRef.current)
+
+  const handleMenuOpen = (e) => {
+    const buttonRect = e.currentTarget.getBoundingClientRect();
+    const popupWidth = 200; 
+    const popupHeight = 50; // Height for one button
+
+    let left = buttonRect.right + 8;
+    if (left + popupWidth > window.innerWidth) {
+      left = buttonRect.left - popupWidth+100;
+    }
+
+    let top = buttonRect.bottom + 8;
+    if (top + popupHeight > window.innerHeight) {
+      top = buttonRect.top - popupHeight - 8;
+    }
+
+    setPopupStyle({ top, left });
+    setShowButton(true);
+  };
 
   // Close menu on outside click
   useEffect(() => {
     function handleClickOutside(e) {
-      if(menuRef.current && !menuRef.current.contains(e.target))
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
         setShowButton(false);
+      }
     }
 
     if (showButton) {
@@ -21,29 +42,30 @@ export default function WatchLaterButton({ videoId }) {
       document.removeEventListener("mousedown", handleClickOutside);
     }
 
-    // Cleanup when component unmounts or menu closes
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showButton]);
 
   return (
     <div ref={menuRef} className="relative">
       <BsThreeDotsVertical
-        onClick={() => setShowButton((prev) => !prev)}
-        className="cursor-pointer text-gray-400 hover:text-gray-500"
+        onClick={handleMenuOpen}
+        className="cursor-pointer text-neutral-400 hover:text-neutral-300"
         size={20}
       />
 
       {showButton && (
-        <div className="absolute left-10 top-2 cursor-pointer bg-neutral-800 border border-gray-700 rounded-md shadow-md z-10">
-          <form 
-          action={async (formData) => {
+        <div
+          className="bg-neutral-700 border border-gray-600 rounded-md shadow-md z-10"
+          style={{ position: "fixed", ...popupStyle }}
+        >
+          <form
+            action={async (formData) => {
               await addToWatchLater(formData);
-              setShowButton(false); 
-            }}>
+              setShowButton(false);
+            }}
+          >
             <input type="hidden" value={videoId} name="videoId" />
-            <button
-              className="flex items-center gap-2 px-3 py-2 w-31 cursor-pointer text-sm text-gray-200 hover:bg-gray-700 rounded-md"
-            >
+            <button className="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-gray-700 rounded-md">
               <MdOutlineWatchLater size={18} />
               Watch later
             </button>

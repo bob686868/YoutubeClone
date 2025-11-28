@@ -188,7 +188,7 @@ model WatchHistoryVideo {
 
   videoId   Int
   video     Video    @relation(fields: [videoId], references: [id])
-  watchetAt DateTime @default(now())
+  watchedAt DateTime @default(now())
 
   @@unique([watchHistoryId, videoId])
   @@index([watchHistoryId, videoId])

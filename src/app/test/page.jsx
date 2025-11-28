@@ -10,11 +10,12 @@ const page = async () => {
       redirect("/login")
     }
     let {videos}=await getVideos()
+    console.log(videos)
     let thumnnailUrl=(t)=>"/thumbnails/thumbnail"+String(t)+".jpg"
   return (
     <div className='bg-white text-black'>
       {videos.length>0 && videos.map((v)=>(
-        <SmallVideo key={v.id} id={v.id} thumbnail={thumnnailUrl(v.thumbnail)} title={v.title} name={v.uploader.username} createdAt={v.createdAt} ></SmallVideo>
+        <SmallVideo key={v.id} video={v}></SmallVideo>
       ))}
     </div>
   )

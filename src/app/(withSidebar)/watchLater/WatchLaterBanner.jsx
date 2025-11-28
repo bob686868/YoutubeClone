@@ -6,30 +6,35 @@ import { formatImageUrl } from "@/app/utils";
 export default function WatchLaterBanner({
   firstVideo,
   owner = "Ibrahim Zakaria",
-  details = "20 videos • No views • Updated today",
+  count,
+  title
 }) {
-  
-  console.log(firstVideo)
+  let details = `${count} videos  •  Updated today `;
+  console.log(firstVideo);
   return (
-    <section className={`watchlater-banner relative w-full rounded-2xl overflow-hidden text-white ${!firstVideo ? 'h-60' : null}`}>
+    <section
+      className={`watchlater-banner relative w-full rounded-2xl overflow-hidden text-white ${
+        !firstVideo ? "h-60" : null
+      }`}
+    >
       <div className="relative flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6 p-5 sm:p-8">
         {/* Thumbnail */}
         <div className="w-full sm:w-[400px] lg:w-[275px] flex-shrink-0 rounded-xl overflow-hidden">
-          {firstVideo &&
-          <Image
-            src={formatImageUrl(firstVideo.thumbnail)}
-            width={150}
-            height={150}
-            alt="watch later thumbnail"
-            className="w-full h-full object-cover"
-          />
-          }
+          {firstVideo && (
+            <Image
+              src={formatImageUrl(firstVideo.thumbnail)}
+              width={150}
+              height={150}
+              alt="watch later thumbnail"
+              className="w-full h-full object-cover"
+            />
+          )}
         </div>
 
         {/* Info */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full">
           <h1 className="text-[26px] sm:text-[30px] font-semibold leading-tight">
-            Watch Later
+            {title}
           </h1>
 
           <div className="mt-1 space-y-0.5">

@@ -1,19 +1,16 @@
 import Image from "next/image";
-import { formatDuration, timeAgo } from "../utils";
+import { formatDuration, formatImageUrl, timeAgo } from "../utils";
 import Link from "next/link";
 
 import { BsThreeDotsVertical } from "react-icons/bs";
 export default function SmallVideo({
-  id,
-  thumbnail,
-  title,
-  name,
-  views = "127k",
-  createdAt = new Date(),
-  duration = 120,
+video
 }) {
+  console.log(video)
+  let {id,duration,createdAt,username,title,profilePhoto,_count,thumbnail}=video
   duration = formatDuration(duration);
   createdAt = timeAgo(createdAt);
+  thumbnail=formatImageUrl(thumbnail)
   return (
     <div className="flex mb-4 cursor-pointer hover:bg-gray-100 rounded-lg p-1">
       <div className="relative flex-shrink-0 w-40 h-24">
@@ -33,9 +30,9 @@ export default function SmallVideo({
 
       <div className="ml-3 flex w-full flex-col justify-between">
         <h3 className="text-sm font-medium line-clamp-2">{title}</h3>
-        <p className="text-xs text-gray-600 mt-1">{name}</p>
+        <p className="text-xs text-gray-600 mt-1">{username}</p>
         <p className="text-xs text-gray-600">
-          {views} • {createdAt}
+          {_count.views} • {createdAt}
         </p>
       </div>
       <div className="w-fit p-3 -mt-3">

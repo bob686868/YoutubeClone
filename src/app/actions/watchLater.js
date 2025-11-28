@@ -5,6 +5,8 @@ let prisma=new PrismaClient()
 
 export async function addVideoToWatchLater(videoId) {
     let cookieStore=await cookies()
+    console.log(videoId )
+    console.log('==-=-=-=-=-=-')
     let userId=Number(cookieStore.get('id').value)
     console.log('adding video to watch later backend')
     try {

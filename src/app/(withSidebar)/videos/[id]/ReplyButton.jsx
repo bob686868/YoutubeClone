@@ -10,9 +10,9 @@ export default function ReplyButton({ commentId }) {
     <div>
         <button
             onClick={() => setShowReplyForm((prev) => !prev)}
-            className={`mt-1 text-sm font-medium ${
-            showReplyForm ? "text-gray-600" : "text-gray-500"
-            } hover:text-gray-700`}
+            className={` text-sm font-medium cursor-pointer hover:text-neutral-100 ${
+            showReplyForm ? "text-neutral-200" : "text-neutral-300"
+            }`}
         >
             Reply
         </button>
@@ -36,10 +36,10 @@ export default function ReplyButton({ commentId }) {
         <button
             disabled={!content.trim()}
             type="submit"
-            className="text-blue-500 text-sm font-semibold hover:opacity-80 disabled:opacity-40"
+            className="text-neural-100 cursor-pointer hover:text-neutral-100 text-sm font-semibold 0 disabled:opacity-40"
         >
             {/* {isPending ? "Replying..." : "Reply"} */}
-            reply
+            Reply
         </button>
         </form>
 }
