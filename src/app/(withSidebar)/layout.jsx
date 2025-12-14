@@ -1,9 +1,15 @@
-
-
-import Navbar from "./Navbar";
 import HeaderWithSidebar from "./HeaderWithSidebar";
+import { getCachedProfilePhoto, getCachedUsername } from "../utils/cache";
+import { cookies } from "next/headers";
+import { logout } from "../actions/users";
+import { redirect } from "next/navigation";
 
-export default function WithSidebarLayout({ children }) {
+export default async function WithSidebarLayout({ children }) {
+  let userId=(await cookies()).get('id')
+  if(!userId)redirect('/login')
+  userId=Number(userId.value)
+  let profilePhoto=await getCachedProfilePhoto(userId)
+  let username=await getCachedUsername(userId)
 
   return (
     <div className="flex min-h-screen">
@@ -18,8 +24,7 @@ export default function WithSidebarLayout({ children }) {
       </header>
 
       <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} /> */}
-    <HeaderWithSidebar></HeaderWithSidebar>
-      {/* Page Content */}
+    <HeaderWithSidebar userId={userId} profilePhoto={profilePhoto} username={username} logout={logout}/>
       <main className="flex-1 lg:ml-64 mt-5 bg-neutral-800">
         {children}
       </main>

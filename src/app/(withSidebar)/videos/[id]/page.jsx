@@ -13,14 +13,11 @@ const page = async ({params}) => {
     redirect("/login")
   }
   let {videos}=await getVideos()
-  console.log(videos)
     let {id}=await params
     let video = await getVideo(id)
-    console.log(video)
-    console.log(";;;;;;;;")
     videos=videos.filter((v)=>v.id!=id)
   return (
-    <div className='bg-neutral-900 px-4  text-neutral-100 mt-8'>
+    <div className='bg-neutral-950   text-neutral-100 mt-8'>
       <VideoSection videoParam={video}/>
       <RecommendedSection videos={videos}></RecommendedSection>
       <CommentSection videoId={id}></CommentSection>

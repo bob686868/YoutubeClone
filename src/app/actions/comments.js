@@ -1,8 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import prisma from '../utils'
+import {getProfilePhotoFromPath} from './videos'
 
-let prisma=new PrismaClient()
+// let prisma=new PrismaClient()
 
 export async function addComment(text,videoId){
     let cookieStore=await cookies()
@@ -73,15 +75,18 @@ export async function editComment(id,text){
 }
 
 
-export async function getComments({videoId}){
+export async function getComments(videoId){
     console.log('entered get comments')
+    videoId=Number(videoId)
     let cookieStore=await cookies()
+    console.log(videoId)
     let userId =Number(cookieStore.get('id').value)
     try {
             let comments=await prisma.comment.findMany({
                 where:{
-                    videoId,
-                    commentId:null
+
+                        videoId,
+                        commentId:null
                 },
                 select:{
                     id:true,
@@ -103,17 +108,22 @@ export async function getComments({videoId}){
                 }
             })
             console.log("got comments")
-            let formatted=comments.map((c)=>({
-                id:c.id,
-                text:c.text,
-                createdAt:c.createdAt,
-                user:c.user,
-                replyCount:c._count.subcomments,
-                likedByMe: c.likes.length>0,
-                likesCount:c._count.likes
+            let formatted=await Promise.all(comments.map(async(c)=>{
+
+                let res=await getProfilePhotoFromPath(c.user.profilePhoto)
+                return {
+                    id:c.id,
+                    text:c.text,
+                    createdAt:c.createdAt,
+                    user:{...c.user,profilePhoto:res.data.signedUrl},
+                    replyCount:c._count.subcomments,
+                    likedByMe: c.likes.length>0,
+                    likesCount:c._count.likes
+            }
             }
         ))
             console.log("got formatted comments")
+            console.log(formatted)
             return {comments:formatted,status:200}
         } catch (error) {
             console.error(error.message)

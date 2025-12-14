@@ -5,7 +5,7 @@ import WatchLaterBanner from "./WatchLaterBanner";
 export default function VideoGrid({ videos,title,isResult=false }) {
   console.log(videos)
   return (
-    <div className="grid grid-cols-1 gap-6 relative min-h-[70vh]">
+    <div className="grid grid-cols-1 bg-neutral-950 gap-6 relative min-h-[70vh]">
       {/* {videos.length>0 && */}
       {!isResult &&
       <WatchLaterBanner firstVideo={videos[0]} title={title} count={videos.length}/>

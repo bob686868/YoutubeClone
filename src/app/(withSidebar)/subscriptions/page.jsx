@@ -4,7 +4,7 @@ import ChannelCard from "./ChannelCard";
 import { getSubscribedTo } from "@/app/actions/users";
 
 const SubscriptionsPage =async  () => {
-  let {subscribedTo}=await getSubscribedTo()
+  let subscribedTo=await getSubscribedTo()
   let info=subscribedTo.subscribedTo
   console.log(info)
   // Demo data — replace this with API data later

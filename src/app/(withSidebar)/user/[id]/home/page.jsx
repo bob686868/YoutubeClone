@@ -7,15 +7,13 @@ const page = async ({ params }) => {
   let { id } = await params;
   let { videos } = await getUserVideos(Number(id));
 
-  console.log(videos);
   return (
-    <div className="bg-neutral-900 px-4">
+    <div className="bg-neutral-950 px-4">
       <ProfileHeader activeTab={"home"} id={id}></ProfileHeader>
       <div className="py-3 grid grid-cols-1 gap-2 min-h-[80vh] sm:grid-cols-2 lg:grid-cols-3">
-      {videos.map((v) => (
-        
-        <Video video={v}></Video>
-      ))}
+        {videos.map((v) => (
+          <Video video={v}></Video>
+        ))}
       </div>
     </div>
   );

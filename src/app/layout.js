@@ -1,7 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
@@ -21,7 +19,7 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-
+  
   return (
     <html lang="en">
       <Toaster position="top-center" />

@@ -1,14 +1,16 @@
 import { PrismaClient } from '@prisma/client'
 import { cookies } from 'next/headers'
+import { supabase } from '../serverUtils'
+import prisma from '../utils'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 
-const prisma = new PrismaClient()
+// const prisma = new PrismaClient()
 
 export async function signup(username,email,password,profilePhoto) {
     let cookieStore=await cookies()
-    console.log("signing up")
-    email = email.trim().toLowerCase();
 
-    let randomImageIndexes=[3,7,8,11,12,13]
+    let n = Math.floor(Math.random()*5)
     try {
         
         // Validate required fields
@@ -18,10 +20,10 @@ export async function signup(username,email,password,profilePhoto) {
                  status: 400 
             }
         }
-        console.log("creating user")
+       let hashedPassword=await bcrypt.hash(password,10)
         const newUser = await prisma.user.create({
             data: {
-                email,password,username,profilePhoto,profilePhoto:Math.floor(Math.random()*randomImageIndexes.length)
+                email,password:hashedPassword,username,profilePhoto,profilePhoto:`default${n}.jpg`
             }})
         cookieStore.set({name:"id",value:newUser.id})
         let id =newUser.id
@@ -38,8 +40,8 @@ export async function signup(username,email,password,profilePhoto) {
                     }}}),
                 ]);
         cookieStore.set({name:"watchHistoryId",value:v2.id})
-
-        console.log(cookieStore.get("watchHistoryId").value)
+        const token=jwt.sign({id:newUser.id},process.env.JWt_SECRET)
+        cookieStore.set({name:"token",value:token})
         return { 
                 message: "User created successfully", 
                 status: 201 
@@ -80,7 +82,6 @@ export async function login(email, password) {
     const user = await prisma.user.findUnique({
       where: { email },
     });
-    console.log(user)
 
     if (!user) {
       return {
@@ -90,7 +91,8 @@ export async function login(email, password) {
     }
 
     // Validate password
-    if (user.password !== password) {
+    let match=await bcrypt.compare(password,user.password)
+    if (!match) {
       return {
         error: "Invalid email or password",
         status: 401,
@@ -101,6 +103,11 @@ export async function login(email, password) {
     cookieStore.set({
       name: "id",
       value: user.id,
+    });
+    let token=jwt.sign({id:user.id},process.env.JWt_SECRET)
+    cookieStore.set({
+      name: "token",
+      value: token,
     });
 
     // Check the user’s watchHistory; create if not exists
@@ -137,20 +144,21 @@ export async function login(email, password) {
 
 
 export async function logout(){
+    "use server"
     let cookieStore=await cookies()
-    id=cookieStore.get('id')
-    try {
-        await prisma.user.delete({
-            where:{
-                id
-            }
-        })
-    } catch (error) {
-        console.error(error.message)
-        return {
-            status:500
-        }
-    }
+    cookieStore.delete("id")
+    // try {
+    //     await prisma.user.delete({
+    //         where:{
+    //             id
+    //         }
+    //     })
+    // } catch (error) {
+    //     console.error(error.message)
+    //     return {
+    //         status:500
+    //     }
+    // }
 }
 
 
@@ -239,7 +247,8 @@ export async function getUserInfo(uploaderId){
                 }
             }
         })
-        return {user,status:200}
+        let {data}=supabase.storage.from('avatars').getPublicUrl(user.profilePhoto)
+        return {user,profilePhoto:data.publicUrl,status:200}
     } catch (error) {
         console.log(error.message)
         return {status:500}
@@ -276,15 +285,15 @@ export async function getAllUsers() {
 
 export async function getSubscribedTo(){
     let cookieStore =await cookies()
-    let userId=Number(cookieStore.get('id').value)
+    let userId=Number(cookieStore.get('id'  ).value)
     try {
-        let subscribedTo=await prisma.user.findUnique({where:
+        let {subscribedTo}=await prisma.user.findUnique({where:
             {
                 id:userId
         },
-        include:{
+        select:{
             subscribedTo:{
-                include:{
+                select:{
                     subscribedTo:{
                         select:{
                             id:true,
@@ -301,9 +310,69 @@ export async function getSubscribedTo(){
             }
         }
     })
-    console.log(subscribedTo.subscribedTo)
+    subscribedTo=subscribedTo.map((s)=>{
+        let {data}=supabase.storage.from('avatars').getPublicUrl(s.subscribedTo.profilePhoto)
+        console.log(s)
+        return {subscribedTo:{...s.subscribedTo,profilePhoto:data.publicUrl}}
+    })
+    // let s=subscribedTo.map((s)=>{
+    //     let url=supabase.storage.from('avatar').getPublicUrl(s.id)
+    // })
     return {subscribedTo}
     } catch (error) {
         console.log(error.message)        
+    }
+}
+
+export async function getProfilePhoto(userId){
+    console.log(userId)
+    console.log('==========================-=-=-=-')
+    try {
+        let {profilePhoto}=await prisma.user.findUnique({where:{
+            id:userId
+        },select:{
+        profilePhoto:true
+        }})
+        console.log(profilePhoto)
+        const {data,error}= await supabase.storage
+        .from('avatars')
+        .createSignedUrl(profilePhoto,60*60*12)
+    return {status:200,profilePhoto:!error ? data.signedUrl : ""}
+    } catch (error) {
+        console.log(error.message)
+        return {status:500 , message:"error getting profile photo"}
+    }
+}
+
+export async function updateProfilePhoto(profilePhoto){
+    let id=(await cookies()).get('id')
+    if(!id)return {status:404}
+    id=Number(id.value)
+    try {
+        await prisma.user.update({
+            where:{id},
+            data:{
+                profilePhoto
+            }
+        })
+        return {status:201}
+    } catch (error) {
+        console.log(error.message)
+        return {status:500}
+    }
+
+}
+
+export async function getUsername(userId){
+    try {
+        let username=await prisma.user.findUnique({
+            where:{id:userId},
+            select:{username:true}
+        })
+        console.log(username)
+        console.log('==================')
+        return {status:200,username}
+    } catch (error) {
+        return {status:500}
     }
 }

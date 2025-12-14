@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { cookies } from "next/headers";
+import prisma from '../utils'
 
-let prisma=new PrismaClient()
+// let prisma=new PrismaClient()
 
 export async function createPlaylist(name){
     try {

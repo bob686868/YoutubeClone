@@ -13,15 +13,16 @@ const tabsCapitalized = ["Home", "Videos", "Shorts", "Posts"];
     // let host=headerList.get('host')
     // console.log(headerList)
     // console.log(host)
-    let {user}=await getUserInfo(Number(id))
+    let {user,profilePhoto}=await getUserInfo(Number(id))
     console.log(user)
-  return (
+    console.log(profilePhoto)
+    return (
     <div>
       <div className="flex items-center py-6 text-neutral-200 mt-5">
         <Image
           width={100}
           height={100}
-          src={formatProfileImageUrl(user.profilePhoto)}
+          src={profilePhoto}
           className="w-20 h-20 rounded-full mr-4"
           />
         <div>

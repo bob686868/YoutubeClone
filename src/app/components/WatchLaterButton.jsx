@@ -11,12 +11,12 @@ export default function WatchLaterButton({ videoId }) {
 
   const handleMenuOpen = (e) => {
     const buttonRect = e.currentTarget.getBoundingClientRect();
-    const popupWidth = 200; 
+    const popupWidth = 200;
     const popupHeight = 50; // Height for one button
 
     let left = buttonRect.right + 8;
     if (left + popupWidth > window.innerWidth) {
-      left = buttonRect.left - popupWidth+100;
+      left = buttonRect.left - popupWidth + 100;
     }
 
     let top = buttonRect.bottom + 8;
@@ -46,10 +46,13 @@ export default function WatchLaterButton({ videoId }) {
   }, [showButton]);
 
   return (
-    <div ref={menuRef} className="relative">
+    <div
+      ref={menuRef}
+      className="relative  hover:bg-neutral-700 cursor-pointer rounded-full p-2 -mr-2"
+    >
       <BsThreeDotsVertical
         onClick={handleMenuOpen}
-        className="cursor-pointer text-neutral-400 hover:text-neutral-300"
+        className=" text-neutral-400 hover:text-neutral-300"
         size={20}
       />
 

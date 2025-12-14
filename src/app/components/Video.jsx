@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import Option from "./Option";
 
-import { BsThreeDotsVertical } from "react-icons/bs";
 import {
   MdOutlineWatchLater,
   MdOutlinePlaylistAdd,
@@ -26,18 +24,13 @@ const options = [
 const Video = ({
 video
 }) => {
-  const thumbnailUrl=(t)=>"/thumbnails/thumbnail"+String(t)+".jpg"
   
   let [isVisible, setIsVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState("bottom"); // 'bottom' or 'top'
   const dotsRef = useRef(null);
   const menuRef = useRef(null);
-  console.log(video)
-  console.log('========================')
   let {id,uploader,title,description,duration,createdAt,thumbnail,profilePhoto}=video
   let {name,uploaderId}=uploader
-  console.log(id)
-  let imgUrl=thumbnailUrl(thumbnail)
   useEffect(() => {
     if (isVisible) {
       // Prevent screen shift when hiding scrollbar
@@ -91,8 +84,8 @@ video
           alt="video thumbnail"
           width={150}
           height={150}
-          src={imgUrl}
-          className="w-full  h-40 object-cover mb-3 rounded-md cursor-pointer"
+          src={thumbnail}
+          className="w-full   h-40 object-cover mb-3 rounded-md cursor-pointer"
           ></Image>
         </Link>
 
@@ -100,10 +93,10 @@ video
         <Link href={`/user/${uploaderId}/home`}>
           <Image
             alt="profilePhoto"
-            src={formatProfileImageUrl(profilePhoto)}
+            src={uploader.profilePhoto}
             width={150}
             height={150}
-            className="size-5 mt-[2px]  rounded-full mr-3 "
+            className="size-7   rounded-full mr-3 "
             ></Image>
           </Link>
 

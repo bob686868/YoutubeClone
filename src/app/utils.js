@@ -1,3 +1,6 @@
+
+import { PrismaClient } from '@prisma/client'
+
 export  function timeAgo(date) {
 
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -42,3 +45,17 @@ export function formatProfileImageUrl(n){
   return `https://i.pravatar.cc/150?img=${n}`
 
 }
+
+
+
+
+const globalForPrisma = globalThis;
+
+const prisma =
+  globalThis.prisma ||
+  new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+export default prisma;
+

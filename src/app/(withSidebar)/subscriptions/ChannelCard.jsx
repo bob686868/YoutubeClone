@@ -7,11 +7,11 @@ import Link from "next/link";
 const ChannelCard = ({ subscribedTo }) => {
   let { username, _count, profilePhoto, id } = subscribedTo;
   return (
-    <div className="flex flex-col items-center  dark:bg-neutral-800 text-neutral-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer w-56 sm:w-64">
+    <div className="flex flex-col items-center  dark:bg-neutral-900 text-neutral-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer w-56 sm:w-64">
       <Image
         width={50}
         height={50}
-        src={formatProfileImageUrl(profilePhoto)}
+        src={profilePhoto}
         className="w-20 h-20 rounded-full object-cover mb-3"
       />
       <h3 className="text-base font-semibold text-center truncate">

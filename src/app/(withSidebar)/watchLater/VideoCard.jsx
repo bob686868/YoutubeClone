@@ -8,7 +8,7 @@ import {removeFromWatchLater} from '../watchLater/actions'
 export default function VideoCard({ video }) {
     
   return (
-    <div className="flex flex-col text-neutral-200 bg-neutral-800 hover:bg-neutral-700 rounded-md duration-75  gap-2 cursor-pointer ">
+    <div className="flex flex-col text-neutral-200 bg-neutral-950 hover:bg-neutral-900 rounded-md duration-75  gap-2 cursor-pointer h-fit">
       <div className="relative w-full aspect-video rounded-xl overflow-hidden">
         <Link href={`/videos/${video.id}`}>
           <Image

@@ -13,9 +13,12 @@ import { FaPlus } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import Link from "next/link";
 import { searchVideosFrontEnd } from "./actions";
+import UserMenu from "../components/UserMenu";
 
-const HeaderWithSidebar = () => {
+const HeaderWithSidebar =  ({userId,profilePhoto,username,logout}) => {
   const [isOpen, setIsOpen] = useState(false);
+  console.log(username,profilePhoto)
+
 
   return (
     <div>
@@ -29,7 +32,7 @@ const HeaderWithSidebar = () => {
       </header> */}
 
       {/*old Header*/}
-      <header className="fixed top-0 left-0 right-0 h-14 bg-neutral-800 border-b z-40 text-neutral-100">
+      <header className="fixed top-0 left-0 right-0 h-14 bg-neutral-950 border-b border-neutral-600 z-40 text-neutral-100">
         <div className="flex justify-between items-center h-full px-4">
           {/* Left section */}
           <div className="flex items-center gap-4">
@@ -64,7 +67,6 @@ const HeaderWithSidebar = () => {
           </div>
 
           {/* Center section */}
-          {/* Center section */}
 <div className="flex-1 flex items-center justify-center mx-4 whitespace-nowrap">
   <div className="flex">
     <form action={searchVideosFrontEnd} className="flex">
@@ -72,11 +74,11 @@ const HeaderWithSidebar = () => {
         type="text"
         name="searchText"
         placeholder="Search"
-        className="px-4 py-2 border flex-grow min-w-0 border-gray-300 rounded-l-full focus:outline-none focus:border-neutral-400 text-sm"
+        className="px-4 py-2 border flex-grow min-w-0 border-neutral-600 rounded-l-full focus:outline-none focus:border-neutral-400 text-sm"
       />
       <button
         type="submit"
-        className="px-6 py-[6px] bg-neutral-800 border border-l-0 cursor-pointer hover:bg-neutral-700 rounded-r-full group relative"
+        className="px-6 py-[6px] bg-neutral-800 border border-l-0 border-neutral-600 cursor-pointer hover:bg-neutral-700 rounded-r-full group relative"
       >
         <IoMdSearch size={20} className="inline" />
       </button>
@@ -116,8 +118,9 @@ const HeaderWithSidebar = () => {
                   <div className="absolute w-2 h-2 bg-[#606060] transform rotate-45 -top-1 left-1/2 -translate-x-1/2"></div>
                 </div>
               </div>
-            </button>
-            <div className="w-8 h-8 rounded-full bg-gray-200 ml-2"></div>
+          </button>
+            <UserMenu username={username.username} userId={userId} profilePhoto={profilePhoto} logout={logout}/>
+          {/* <div className="w-8 h-8 rounded-full bg-gray-200 ml-2"></div> */}
             <button className="p-2 hover:bg-neutral-700 rounded-full cursor-pointer group relative">
               <BsThreeDotsVertical size={20} />
               <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">

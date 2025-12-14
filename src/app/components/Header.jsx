@@ -8,7 +8,6 @@ import { IoMdSearch } from "react-icons/io";
 import { FaPlus } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import Link from "next/link";
-import MobileSidebar from "./MobileSidebar";
 
 const Header = () => {
   return (

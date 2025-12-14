@@ -1,27 +1,52 @@
 import { PrismaClient } from "@prisma/client";
 import { cookies } from "next/headers";
+import prisma from '../utils'
+import { supabase } from "../serverUtils";
+import {v4 as uuidv4} from 'uuid'
 
-let prisma=new PrismaClient()
+// let prisma=new PrismaClient()
+
+export async function getThumbnailFromPath(thumbnail){
+    const res=await supabase.storage
+    .from('thumbnails')
+    .createSignedUrl(thumbnail,3000)
+    return res
+
+}
+
+export async function getProfilePhotoFromPath(profilePhoto){
+    const res= await supabase.storage
+        .from('avatars')
+        .createSignedUrl(profilePhoto,60*60*12)
+    return res
+}
+
 export async function addVideo(title,description,thumbnail,duration=120,tags=null,isShort=false){
     let cookieStore =await cookies()
     let id=Number(cookieStore.get('id').value)
-    console.log(id,'-=-=00-=0=-0-0=-')
-    thumbnail=String(thumbnail  )
-    console.log('adding')
+    let tId=uuidv4()
+    let path=`${tId}/${thumbnail.name}`
+    let {data,error}=await supabase
+                        .storage
+                        .from('thumbnails')
+                        .upload(path,thumbnail,{upsert:true})
+    if(error){
+        console.log(error.message)
+        return {status:500}
+    }
     try {
-        if(!title || !description || !thumbnail || !duration){
+    if(!title|| !description || !thumbnail || !duration){
             return {status:400,
                 message:'data provided isnt enough'
             }
         }
         await prisma.video.create({data:{
-            title,description,duration,thumbnail,
+            title,description,duration,thumbnail:path,
             uploaderId:id,
             // tags:{
             //     connect:tags.map((name)=>({name}))
             // }
         }})
-        console.log('added')
         return {
             status:201
         }
@@ -56,7 +81,19 @@ export async function getVideos(skip=0){
             skip,
             take:15
         })
-        console.log('entered')
+
+        videos=await Promise.all(
+            videos.map(async (v)=>{
+                const [thumbRes,profileRes]=await Promise.all([
+                getThumbnailFromPath(v.thumbnail),
+                getProfilePhotoFromPath(v.uploader.profilePhoto)
+                ])
+
+                if(thumbRes.error)return v
+                return {...v,thumbnail:thumbRes.data.signedUrl,uploader:{...v.uploader,profilePhoto:profileRes.data?.signedUrl}}
+            })
+        )
+    // videos.map((v)=>)
         return {videos,status:200}
     } catch (error) {
         console.error(error.message)
@@ -64,86 +101,92 @@ export async function getVideos(skip=0){
     }
 }
 
-export async function getVideo(videoId){
-    let cookieStore=await cookies()
-    let userId=Number(cookieStore.get('id').value)
-    console.log(userId)
-    videoId=Number(videoId)
-    console.log(videoId)
-    let watchHistoryId=Number(cookieStore.get('watchHistoryId').value)
-    try {
-        let video =await prisma.video.findUnique({
-            where:{
-                id:videoId
-            },
-            include:{
-                uploader:{
-                    include:{
-                        _count:{
-                            select:{subscribers:true}
-                        }
-                    }
-                },
-                _count:{
-                    select:{
-                        views:true,
-                        likes:true
-                    }
-                }
-            },
-    })
-    if(!video)return {status:500}
-    let uploaderId=video.uploaderId
-    let isSubsribed=await prisma.subscriber.findUnique({
-        where:{
-            subscriberId_subscribedToId:{
-                subscriberId:userId,
-                subscribedToId:uploaderId
-            }
-        }
-        ,
-       select:{
-            subscribedToId:true
-        }
-    }) 
-    await prisma.view.create({
-        data:{
-            videoId
-        }
-    })
-    let hasLiked=await prisma.like.findUnique({
-        where:{
-            userId_videoId:{
-                userId,
-                videoId
-            }
-        },
-       select:{
-            id:true
-       }
-    })
+export async function getVideo(videoId) {
+  const cookieStore = await cookies();
+  const userId = Number(cookieStore.get("id")?.value);
+  const watchHistoryId = Number(cookieStore.get("watchHistoryId")?.value);
+  videoId = Number(videoId);
 
-    await prisma.watchHistoryVideo.upsert({
-        where:{
-            watchHistoryId_videoId:{
-                watchHistoryId:watchHistoryId,
-                videoId
-            }
+  try {
+    // 1) Fetch video + uploader + counts in ONE query
+    const video = await prisma.video.findUnique({
+      where: { id: videoId },
+      include: {
+        uploader: {
+          include: {
+            _count: { select: { subscribers: true } }
+          }
         },
-        update:{
-            watchedAt:new Date()
-        },
-        create:{
-            watchHistoryId:watchHistoryId,
-            videoId
+        _count: {
+          select: { views: true, likes: true }
         }
-    })
-    return {video,isSubsribed:Boolean(isSubsribed),hasLiked:Boolean(hasLiked),status:200}
-    } catch (error) {
-        console.error(error.message)
-        return {status:500}
-    }
+      }
+    });
+
+    if (!video) return { status: 500 };
+
+    // 2) Signed URLs in parallel (fastest)
+    const [profileRes, thumbRes] = await Promise.all([
+      getProfilePhotoFromPath(video.uploader.profilePhoto),
+      getThumbnailFromPath(video.thumbnail),
+    ]);
+
+    video.uploader.profilePhoto = profileRes.data.signedUrl;
+    video.thumbnail = thumbRes.data.signedUrl;
+
+    // 3) Subscriber + like queries in parallel
+    const pSub = prisma.subscriber.findUnique({
+      where: {
+        subscriberId_subscribedToId: {
+          subscriberId: userId,
+          subscribedToId: video.uploaderId,
+        }
+      },
+      select: { subscribedToId: true }
+    });
+
+    const pLike = prisma.like.findUnique({
+      where: {
+        userId_videoId: {
+          userId,
+          videoId,
+        }
+      },
+      select: { id: true }
+    });
+
+    const [subRes, likeRes] = await Promise.all([pSub, pLike]);
+
+    // 4) Insert view + update watch history in parallel
+    // IMPORTANT: these are *writes*, so we keep them parallel (no race condition)
+    const pView = prisma.view.create({ data: { videoId } });
+
+    const pHistory = prisma.watchHistoryVideo.upsert({
+      where: {
+        watchHistoryId_videoId: {
+          watchHistoryId,
+          videoId
+        }
+      },
+      update: { watchedAt: new Date() },
+      create: { watchHistoryId, videoId }
+    });
+
+    await Promise.all([pView, pHistory]);
+
+    return {
+      video,
+      isSubsribed: Boolean(subRes),
+      hasLiked: Boolean(likeRes),
+      status: 200
+    };
+
+  } catch (err) {
+    console.error(err);
+    return { status: 500 };
+  }
 }
+
 
 export async function getUserVideos(uploaderId,skip=0){
     try {
@@ -160,6 +203,11 @@ export async function getUserVideos(uploaderId,skip=0){
             skip,
             take:15
         })
+        videos=videos.map((v)=>{
+          let {data}=supabase.storage.from('thumbnails').getPublicUrl(v.thumbnail)
+          return {...v,thumbnail:data.publicUrl}
+        })
+        console.log(videos)
         console.log('entered')
         return {videos,status:200}
     } catch (error) {

@@ -4,17 +4,16 @@ import Link from "next/link";
 import WatchLaterButton from "../../../../components/WatchLaterButton";
 
 export default function VideoCard({ video }) {
-  function formatImageUrl(n) {
-    return `/thumbnails/thumbnail${n}.jpg`;
-  }
-  let { id, thumbnail, title, duration, createdAt, username, _count } = video;
+
+  let { id, thumbnail, title, duration, createdAt, username, uploader,_count } = video;
+  console.log(thumbnail)
   return (
     <div className="w-full max-w-[360px] cursor-pointer">
       {/* Thumbnail */}
       <Link href={`/videos/${id}`}>
         <div className="relative w-full aspect-video rounded-xl overflow-hidden">
           <Image
-            src={formatImageUrl(thumbnail)}
+            src={thumbnail}
             alt="video image"
             fill
             className="object-cover transition-transform duration-300 hover:scale-[1.03]"

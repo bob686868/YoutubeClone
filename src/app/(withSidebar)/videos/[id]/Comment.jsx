@@ -3,21 +3,28 @@ import { timeAgo } from "@/app/utils";
 import LikeButton from "./LikeButton";
 import { addReply } from "./actions";
 import ReplyButton from "./ReplyButton";
-import { formatProfileImageUrl } from "@/app/utils";
-const Comment = ({ profilePhoto, username, time, text, likesCount,commentId,isLikedByMe }) => {
-  time=timeAgo(time)
-  console.log(profilePhoto+ "-adfdfidafin")
-  // console.log(profilePhoto,username,time,text,likesCount,commentId)
+const Comment = ({
+  profilePhoto,
+  username,
+  time,
+  text,
+  likesCount,
+  commentId,
+  isLikedByMe,
+}) => {
+  time = timeAgo(time);
   return (
     <div className="flex gap-3">
       {/* Avatar */}
-      {profilePhoto!=null && <Image
-        src={formatProfileImageUrl(profilePhoto)}
-        width={123}
-        height={123}
-        alt={username}
-        className="w-10 h-10 rounded-full object-cover mr-1"
-      />}
+      {profilePhoto != null && (
+        <Image
+          src={profilePhoto}
+          width={123}
+          height={123}
+          alt={username}
+          className="w-10 h-10 rounded-full object-cover mr-1"
+        />
+      )}
 
       {/* Comment Body */}
       <div className="flex flex-col gap-1 w-full">
@@ -32,9 +39,13 @@ const Comment = ({ profilePhoto, username, time, text, likesCount,commentId,isLi
 
         {/* Actions: Like */}
         <div className="flex  gap-4 mt-1">
-        <LikeButton likesCount={likesCount} isLikedByMe={isLikedByMe} commentId={commentId}></LikeButton>
-        <ReplyButton commentId={commentId}></ReplyButton>
-         </div>
+          <LikeButton
+            likesCount={likesCount}
+            isLikedByMe={isLikedByMe}
+            commentId={commentId}
+          ></LikeButton>
+          <ReplyButton commentId={commentId}></ReplyButton>
+        </div>
         {/* <ShowReplies commentId={c.id} count={c._count.subcomments}></ShowReplies> */}
       </div>
     </div>

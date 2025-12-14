@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { cpSync } from "fs";
+import prisma from '../utils'
 
-let prisma=new PrismaClient()
+// let prisma=new PrismaClient()
 
 export async function getTags(){
     try {

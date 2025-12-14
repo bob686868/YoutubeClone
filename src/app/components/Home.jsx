@@ -1,12 +1,9 @@
 'use client';
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
 import Video from "../components/Video";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 import Tag from "../components/Tag";
 import { useState, useRef, useEffect } from 'react';
-import Short from "../components/Short";
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +11,6 @@ export default function Home({tags,videos}) {
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
   const tagContainerRef = useRef(null);
-  console.log(videos)
 
   const checkScroll = () => {
     if (tagContainerRef.current) {
@@ -91,7 +87,7 @@ export default function Home({tags,videos}) {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-3  gap-x-1 gap-y-3 p-4">
-          {videos.length>0 && videos.map((v)=>(
+          {videos && videos.map((v)=>(
 
               <Video video={v}/>
 

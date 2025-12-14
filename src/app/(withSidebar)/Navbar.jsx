@@ -2,6 +2,7 @@
 import { Search, Mic, Bell, Video, User } from "lucide-react";
 import Image from "next/image";
 import { searchVideosFrontEnd } from "./actions";
+import UserMenu from "../components/UserMenu";
 
 export default function Navbar() {
   return (
@@ -57,9 +58,8 @@ export default function Navbar() {
             3
           </span>
         </button>
-        <button className="p-1 border border-gray-300 rounded-full">
-          <User size={22} />
-        </button>
+      
+        <UserMenu/>
       </div>
     </nav>
   );

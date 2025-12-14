@@ -6,7 +6,6 @@ import { FaThumbsUp } from "react-icons/fa";
 
 const LikeButton = ({ likesCount, isLikedByMe,commentId }) => {
   function updateLikeButtonState(){
-    console.log('triggger update buttpn state')
     if(likedByMe)setLikesCountState((prevState)=>prevState-1)
     else setLikesCountState((prevState)=>prevState+1)
     setLikedByMe((prevState)=>!prevState)
