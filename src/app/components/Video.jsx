@@ -31,6 +31,7 @@ video
   const menuRef = useRef(null);
   let {id,uploader,title,description,duration,createdAt,thumbnail,profilePhoto}=video
   let {name,uploaderId}=uploader
+  console.log(thumbnail)
   useEffect(() => {
     if (isVisible) {
       // Prevent screen shift when hiding scrollbar

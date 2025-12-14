@@ -124,7 +124,8 @@ export async function getVideo(videoId) {
     });
 
     if (!video) return { status: 500 };
-
+    console.log(video)
+    console.log(supabase)
     // 2) Signed URLs in parallel (fastest)
     const [profileRes, thumbRes] = await Promise.all([
       getProfilePhotoFromPath(video.uploader.profilePhoto),
@@ -275,6 +276,7 @@ export async function getLikedVideos(){
                                         views:true
                                     }
                                 },
+                                id:true,
                                 createdAt:true,
                                 title:true,
                                 thumbnail:true,
@@ -288,7 +290,12 @@ export async function getLikedVideos(){
             
         }
     )
-    return {user}
+    let formatted=user.likes.map((l)=>{
+      let {data}=supabase.storage.from('thumbnails').getPublicUrl(l.video.thumbnail)
+      return {...l.video,thumbnail:data.publicUrl}
+    })
+    console.log(formatted)
+    return {videos:formatted}
     } catch (error) {
         console.log(error.message)
     }

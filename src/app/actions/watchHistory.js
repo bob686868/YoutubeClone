@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { cookies } from "next/headers";
 import prisma from '../utils'
+import { supabase } from "../serverUtils";
 
 // let prisma=new PrismaClient()
 
@@ -46,6 +47,7 @@ export async function getVideosOfWatchHistory(skip) {
                                 username:true
                             }
                         },
+                        id:true,
                         createdAt:true,
                         thumbnail:true,
                         title:true,
@@ -59,6 +61,14 @@ export async function getVideosOfWatchHistory(skip) {
                         
                 }}
         }}})
+        watchHistory=watchHistory.videos
+        if(watchHistory.length){
+            watchHistory=watchHistory.map((v)=>{
+                let {data}=supabase.storage.from('thumbnails').getPublicUrl(v.video.thumbnail)
+                console.log(v.video.thumbnail)
+                return {...v.video,thumbnail:data.publicUrl}
+            })
+        }
        return {watchHistory,status:200} 
     } catch (error) {
         console.error(error.message)

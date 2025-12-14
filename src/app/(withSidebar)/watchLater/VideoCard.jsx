@@ -1,18 +1,16 @@
-import WatchLaterButton from "@/app/components/WatchLaterButton";
-import { formatDuration, timeAgo,formatImageUrl } from "@/app/utils";
+import { formatDuration, timeAgo } from "@/app/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { MdOutlineWatchLater } from "react-icons/md";
-import { FaRegTrashAlt } from "react-icons/fa";
-import {removeFromWatchLater} from '../watchLater/actions'
+
 export default function VideoCard({ video }) {
-    
+  console.log(video)
+
   return (
     <div className="flex flex-col text-neutral-200 bg-neutral-950 hover:bg-neutral-900 rounded-md duration-75  gap-2 cursor-pointer h-fit">
       <div className="relative w-full aspect-video rounded-xl overflow-hidden">
         <Link href={`/videos/${video.id}`}>
           <Image
-            src={formatImageUrl(video.thumbnail)}
+            src={video.thumbnail}
             width={200}
             height={200}
             alt={video.title}

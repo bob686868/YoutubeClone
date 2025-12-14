@@ -2,7 +2,7 @@ import { getVideosOfWatchLater } from "@/app/actions/watchLater";
 import VideoGrid from "./VideoGrid";
 
 export default async function WatchLaterPage() {
-  let { watchLater } = await getVideosOfWatchLater();
+  let {watchLater} = await getVideosOfWatchLater();
   return (
     <div className="min-h-screen bg-black py-6 rounded-md text-white">
       <div className="flex">
@@ -10,7 +10,7 @@ export default async function WatchLaterPage() {
           {/* <h1 className="text-xl sm:text-2xl font-semibold mb-4">
             Watch Later
           </h1> */}
-          <VideoGrid videos={watchLater.videos} title={"Watch Later"} />
+          <VideoGrid videos={watchLater} title={"Watch Later"} />
         </main>
       </div>
     </div>

@@ -2,6 +2,8 @@ import { PrismaClient } from "@prisma/client";
 import { cookies } from "next/headers";
 import prisma from '../utils'
 
+import {supabase} from '../serverUtils'
+
 // let prisma=new PrismaClient()
 
 export async function addVideoToWatchLater(videoId) {
@@ -67,8 +69,13 @@ export async function getVideosOfWatchLater() {
             },
                },
 
-        })
-        console.log(watchLater)
+            })
+
+            watchLater=watchLater?.videos.map((v)=>{
+                let {data}=supabase.storage.from('thumbnails').getPublicUrl(v.thumbnail)
+                let url=data.publicUrl
+                return {...v,thumbnail:data.publicUrl}})
+           
        return {watchLater,status:200} 
     } catch (error) {
         console.error(error.message)

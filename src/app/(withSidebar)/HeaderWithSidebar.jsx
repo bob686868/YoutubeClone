@@ -5,20 +5,19 @@ import { Menu } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "../components/Header";
 import Image from "next/image";
-import { IoMdMenu } from "react-icons/io5";
-import { IoMdMic } from "react-icons/io5";
-import { IoMdNotifications } from "react-icons/io5";
-import { IoMdSearch } from "react-icons/io5";
+import { IoMenu } from "react-icons/io5";
+import { IoMic } from "react-icons/io5";
+import { IoNotifications } from "react-icons/io5";
+import { IoSearch } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import Link from "next/link";
 import { searchVideosFrontEnd } from "./actions";
 import UserMenu from "../components/UserMenu";
 
-const HeaderWithSidebar =  ({userId,profilePhoto,username,logout}) => {
+const HeaderWithSidebar = ({ userId, profilePhoto, username, logout }) => {
   const [isOpen, setIsOpen] = useState(false);
-  console.log(username,profilePhoto)
-
+  console.log(username, profilePhoto);
 
   return (
     <div>
@@ -43,7 +42,7 @@ const HeaderWithSidebar =  ({userId,profilePhoto,username,logout}) => {
                 setIsOpen((prev) => !prev);
               }}
             >
-              <IoMdMenu size={24} />
+              <IoMenu size={24} />
               <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
                 <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg ">
                   Menu
@@ -62,40 +61,41 @@ const HeaderWithSidebar =  ({userId,profilePhoto,username,logout}) => {
                 priority
               />
 
-              <span className="text-xl font-semibold -ml-3 tracking-tighter">YouTube</span>
+              <span className="text-xl font-semibold -ml-3 tracking-tighter">
+                YouTube
+              </span>
             </div>
           </div>
 
           {/* Center section */}
-<div className="flex-1 flex items-center justify-center mx-4 whitespace-nowrap">
-  <div className="flex">
-    <form action={searchVideosFrontEnd} className="flex">
-      <input
-        type="text"
-        name="searchText"
-        placeholder="Search"
-        className="px-4 py-2 border flex-grow min-w-0 border-neutral-600 rounded-l-full focus:outline-none focus:border-neutral-400 text-sm"
-      />
-      <button
-        type="submit"
-        className="px-6 py-[6px] bg-neutral-800 border border-l-0 border-neutral-600 cursor-pointer hover:bg-neutral-700 rounded-r-full group relative"
-      >
-        <IoMdSearch size={20} className="inline" />
-      </button>
-    </form>
-  </div>
+          <div className="flex-1 flex items-center justify-center mx-4 whitespace-nowrap">
+            <div className="flex">
+              <form action={searchVideosFrontEnd} className="flex">
+                <input
+                  type="text"
+                  name="searchText"
+                  placeholder="Search"
+                  className="px-4 py-2 border flex-grow min-w-0 border-neutral-600 rounded-l-full focus:outline-none focus:border-neutral-400 text-sm"
+                />
+                <button
+                  type="submit"
+                  className="px-6 py-[6px] bg-neutral-800 border border-l-0 border-neutral-600 cursor-pointer hover:bg-neutral-700 rounded-r-full group relative"
+                >
+                  <IoSearch size={20} className="inline" />
+                </button>
+              </form>
+            </div>
 
-  <button className="ml-4 p-2 hover:bg-neutral-700 cursor-pointer rounded-full group relative">
-    <IoMdMic size={24} />
-    <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
-      <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
-        Search with your voice
-        <div className="absolute w-2 h-2 bg-[#606060] transform rotate-45 -top-1 left-1/2 -translate-x-1/2"></div>
-      </div>
-    </div>
-  </button>
-</div>
-
+            <button className="ml-4 p-2 hover:bg-neutral-700 cursor-pointer rounded-full group relative">
+              <IoMic size={24} />
+              <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
+                <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
+                  Search with your voice
+                  <div className="absolute w-2 h-2 bg-[#606060] transform rotate-45 -top-1 left-1/2 -translate-x-1/2"></div>
+                </div>
+              </div>
+            </button>
+          </div>
 
           {/* Right section */}
           <div className="flex items-center gap-2">
@@ -111,16 +111,21 @@ const HeaderWithSidebar =  ({userId,profilePhoto,username,logout}) => {
               </button>
             </Link>
             <button className="p-2 hover:bg-neutral-700 rounded-full cursor-pointer group relative">
-              <IoMdNotifications size={24} />
+              <IoNotifications size={24} />
               <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
                 <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
                   Notifications
                   <div className="absolute w-2 h-2 bg-[#606060] transform rotate-45 -top-1 left-1/2 -translate-x-1/2"></div>
                 </div>
               </div>
-          </button>
-            <UserMenu username={username.username} userId={userId} profilePhoto={profilePhoto} logout={logout}/>
-          {/* <div className="w-8 h-8 rounded-full bg-gray-200 ml-2"></div> */}
+            </button>
+            <UserMenu
+              username={username.username}
+              userId={userId}
+              profilePhoto={profilePhoto}
+              logout={logout}
+            />
+            {/* <div className="w-8 h-8 rounded-full bg-gray-200 ml-2"></div> */}
             <button className="p-2 hover:bg-neutral-700 rounded-full cursor-pointer group relative">
               <BsThreeDotsVertical size={20} />
               <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">

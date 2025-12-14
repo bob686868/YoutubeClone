@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { IoMdMenu } from "react-icons/io5";
-import { IoMdMic } from "react-icons/io5";
-import { IoMdNotifications } from "react-icons/io5";
-import { IoMdSearch } from "react-icons/io5";
+import { IoMenu } from "react-icons/io5";
+import { IoMic } from "react-icons/io5";
+import { IoNotifications } from "react-icons/io5";
+import { IoSearch } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import Link from "next/link";
@@ -17,7 +17,7 @@ const Header = () => {
           {/* Left section */}
           <div className="flex items-center gap-4">
             <button className="p-2 hover:bg-neutral-700 rounded-full group relative">
-              <IoMdMenu size={24} />
+              <IoMenu size={24} />
               <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
                 <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
                   Menu
@@ -49,7 +49,7 @@ const Header = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-l-full focus:outline-none focus:border-neutral-400 text-sm"
               />
               <button className="px-6 py-2 bg-neutral-800 border border-l-0 hover:bg-neutral-700 rounded-r-full  group relative">
-                <IoMdSearch size={20} />
+                <IoSearch size={20} />
                 <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
                   <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
                     Search
@@ -60,7 +60,7 @@ const Header = () => {
             </div>
 
             <button className="ml-4 p-2 hover:bg-neutral-700 rounded-full group relative">
-              <IoMdMic size={24} />
+              <IoMic size={24} />
               <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
                 <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
                   Search with your voice
@@ -84,7 +84,7 @@ const Header = () => {
               </button>
             </Link>
             <button className="p-2 hover:bg-neutral-700 rounded-full group relative">
-              <IoMdNotifications size={24} />
+              <IoNotifications size={24} />
               <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
                 <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
                   Notifications

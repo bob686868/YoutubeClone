@@ -3,11 +3,8 @@ import VideoGrid from "../watchLater/VideoGrid";
 import { getLikedVideos } from "@/app/actions/videos";
 
 export default async function WatchLaterPage() {
-  let { user } = await getLikedVideos();
-  // console.dir(user, { depth: null, colors: true });
-  console.log(user.likes);
-  let videos = user.likes.map((l) => l.video);
-  console.dir(videos, { depth: null, colors: true });
+  let { videos } = await getLikedVideos();
+
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="flex">

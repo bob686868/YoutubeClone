@@ -3,7 +3,6 @@ import VideoCard from "./VideoCard";
 import WatchLaterBanner from "./WatchLaterBanner";
 
 export default function VideoGrid({ videos,title,isResult=false }) {
-  console.log(videos)
   return (
     <div className="grid grid-cols-1 bg-neutral-950 gap-6 relative min-h-[70vh]">
       {/* {videos.length>0 && */}

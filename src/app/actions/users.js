@@ -10,7 +10,7 @@ import jwt from 'jsonwebtoken'
 export async function signup(username,email,password,profilePhoto) {
     let cookieStore=await cookies()
 
-    let n = Math.floor(Math.random()*5)
+    let n = Math.floor(Math.random()*4)
     try {
         
         // Validate required fields

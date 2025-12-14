@@ -4,10 +4,9 @@ import VideoGrid from "../watchLater/VideoGrid";
 
 const page = async () => {
   let { watchHistory } = await getVideosOfWatchHistory();
-  let videos = watchHistory.videos;
-  let formattedVideos = videos.map((v) => v.video);
-  console.log(formattedVideos);
-  console.log("-=-gfs=fsg");
+  let formattedVideos = watchHistory
+  console.log(formattedVideos)
+  console.log('adfinadfinfdiinaf')
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="flex">

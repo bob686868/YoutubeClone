@@ -1,7 +1,6 @@
 import React from "react";
 import { Play, Shuffle, Download, MoreVertical } from "lucide-react";
 import Image from "next/image";
-import { formatImageUrl } from "@/app/utils";
 
 export default function WatchLaterBanner({
   firstVideo,
@@ -10,7 +9,6 @@ export default function WatchLaterBanner({
   title
 }) {
   let details = `${count} videos  •  Updated today `;
-  console.log(firstVideo);
   return (
     <section
       className={`watchlater-banner relative w-full rounded-2xl overflow-hidden text-white ${
@@ -22,11 +20,13 @@ export default function WatchLaterBanner({
         <div className="w-full sm:w-[400px] lg:w-[275px] flex-shrink-0 rounded-xl overflow-hidden">
           {firstVideo && (
             <Image
-              src={formatImageUrl(firstVideo.thumbnail)}
-              width={150}
-              height={150}
+            width={150}
+            height={150}
+            src={firstVideo.thumbnail}
               alt="watch later thumbnail"
-              className="w-full h-full object-cover"
+              // className="w-full h-full object-cover"
+          className="w-full   h-40 object-cover mb-3 rounded-md cursor-pointer"
+
             />
           )}
         </div>

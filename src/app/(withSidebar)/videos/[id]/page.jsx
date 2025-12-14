@@ -16,6 +16,7 @@ const page = async ({params}) => {
     let {id}=await params
     let video = await getVideo(id)
     videos=videos.filter((v)=>v.id!=id)
+    console.log(videos)
   return (
     <div className='bg-neutral-950   text-neutral-100 mt-8'>
       <VideoSection videoParam={video}/>
