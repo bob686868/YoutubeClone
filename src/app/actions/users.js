@@ -39,6 +39,8 @@ export async function signup(username,email,password,profilePhoto) {
                         connect:{id}
                     }}}),
                 ]);
+                console.log('JWT_SECRET:', process.env.JWT_SECRET);
+
         cookieStore.set({name:"watchHistoryId",value:v2.id})
         const token=jwt.sign({id:newUser.id},process.env.JWt_SECRET)
         cookieStore.set({name:"token",value:token})

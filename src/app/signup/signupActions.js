@@ -10,7 +10,7 @@ import { signup } from "../actions/users";
     const password = formData.get("password");
 
     const result = await signup(username, email, password);
-
+  
     if (result.error) {
       return { error: result.error };
     }
