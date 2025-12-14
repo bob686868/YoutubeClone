@@ -5,7 +5,7 @@ import { FaRegCommentDots } from "react-icons/fa";
 import { RiShareForwardLine } from "react-icons/ri";
 import { BsThreeDots } from "react-icons/bs";
 import { MdDownload } from "react-icons/md";
-import { IoMdVolumeHigh, IoMdPlay, IoMdExpand } from "react-icons/io";
+import { IoMdVolumeHigh, IoMdPlay, IoMdExpand } from "react-icons/io5";
 
 const actions = [
   { label: "Like", icon: <AiOutlineLike /> },

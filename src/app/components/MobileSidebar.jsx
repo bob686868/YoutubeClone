@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import { sidebarData } from '../data/sidebarData.js';
-import { IoMdClose } from "react-icons/io";
+import { IoMdClose } from "react-icons/io5";
 import { twMerge } from 'tailwind-merge';
 
 const MobileSidebar = ({ isOpen, onClose }) => {

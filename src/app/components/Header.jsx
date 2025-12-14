@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { IoMdMenu } from "react-icons/io";
-import { IoMdMic } from "react-icons/io";
-import { IoMdNotifications } from "react-icons/io";
-import { IoMdSearch } from "react-icons/io";
+import { IoMdMenu } from "react-icons/io5";
+import { IoMdMic } from "react-icons/io5";
+import { IoMdNotifications } from "react-icons/io5";
+import { IoMdSearch } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import Link from "next/link";

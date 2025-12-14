@@ -1,4 +1,4 @@
-import { IoMdHome } from "react-icons/io";
+import { IoMdHome } from "react-icons/io5";
 import { SiYoutubeshorts } from "react-icons/si";
 import { MdOutlineSubscriptions } from "react-icons/md";
 import { MdOutlineVideoLibrary } from "react-icons/md";

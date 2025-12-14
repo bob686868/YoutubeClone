@@ -1,7 +1,7 @@
 'use client';
 import Video from "../components/Video";
-import { IoIosArrowBack } from "react-icons/io";
-import { IoIosArrowForward } from "react-icons/io";
+import { IoIosArrowBack } from "react-icons/io5";
+import { IoIosArrowForward } from "react-icons/io5";
 import Tag from "../components/Tag";
 import { useState, useRef, useEffect } from 'react';
 
