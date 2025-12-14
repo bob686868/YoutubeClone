@@ -8,7 +8,9 @@ import { signUp } from "./signupActions";
 
 // import Create from "../components/Create";
 // import LoginForm from "./LoginForm";
+export const runtime = "nodejs";
 const page = () => {
+
   const [state, formAction,isPending] = useActionState(signUp, { error: null });
   const buttonClasses= isPending ? 'bg-neutral-500 text-neutral-200' : 'bg-neutral-100 hover:bg-neutral-200 cursor-pointer text-black'
   return (
