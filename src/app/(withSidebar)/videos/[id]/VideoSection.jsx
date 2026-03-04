@@ -82,12 +82,12 @@ const VideoSection = ({ videoParam }) => {
   return (
     <section className="w-full flex flex-col pt-4 gap-6  relative">
       {/* Video Player */}
-      <div className="relative w-full aspect-video bg-black ">
+      <div className="relative w-[94%] mx-auto aspect-video h-fit  bg-black ">
         <Image
           src={video.thumbnail}
           width={700}
           height={700}
-          className="w-full aspect-video  rounded-sm  bg-black"
+          className="w-full object-fill lg:h-120  rounded-sm  bg-black"
         />
       </div>
 
