@@ -1,151 +1,252 @@
 "use client";
-import React, { useState, useActionState,useRef } from "react";
+import React, { useState, useActionState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { BiImageAdd } from "react-icons/bi";
+import Link from "next/link";
+import { BiImageAdd, BiVideoPlus, BiCheckCircle, BiLoaderAlt } from "react-icons/bi";
+import { IoArrowBack } from "react-icons/io5";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
-const UploadVideoClient = ({
-  availableTags,
-  serverAction,
-}) => {
-  const [state, formAction] = useActionState(serverAction, { success: false });
+const UploadVideoClient = ({ availableTags = [], serverAction }) => {
+  const router = useRouter();
+  const [state, formAction, isPending] = useActionState(serverAction, null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [thumbnail, setThumbnail] = useState("");
-  const [tags, setTags] = useState([]);
+  const [thumbnailPreview, setThumbnailPreview] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
+  const [selectedTags, setSelectedTags] = useState([]);
   const [isShort, setIsShort] = useState(false);
 
-  const fileRef=useRef(null)
+  const thumbInputRef = useRef(null);
+  const videoInputRef = useRef(null);
 
-  const handleTagChange = (e) => {
-    const value = e.target.value;
-    if (tags.includes(value)) {
-      setTags(tags.filter((tag) => tag !== value));
+  useEffect(() => {
+    if (state?.success) {
+      toast.success("Video published successfully!");
+      router.push("/");
+    } else if (state?.error) {
+      toast.error(state.error);
+    }
+  }, [state, router]);
+
+  const toggleTag = (tag) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleFileChange = (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (type === "video") {
+      setVideoFile(file);
+      if (!title) setTitle(file.name.replace(/\.[^/.]+$/, ""));
     } else {
-      setTags([...tags, value]);
+      setThumbnailPreview(URL.createObjectURL(file));
     }
   };
-  function clickHandler(){
-    fileRef.current.click()
-  }
-  function changeHandler(e){
-    let file=e.target.files[0]
-    let url=URL.createObjectURL(file)
-    setThumbnail(url)
-  }
 
   return (
-    <div className="min-h-screen text-neutral-100 bg-neutral-950 flex justify-center py-10">
-      <div className="bg-neutral-900 w-full max-w-3xl p-6 rounded-lg shadow-md">
-        <h1 className="text-2xl font-semibold mb-6">Upload Video</h1>
-
-        <form
-          action={(formData) => {
-            formAction(formData);
-            toast.success("Video uploaded successfully!");
-          }}
-          className="space-y-5"
-        >
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Title</label>
-            <input
-              type="text"
-              name="title"
-              value={title}
-              required
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter video title"
-              className="w-full border border-neutral-700 bg-neutral-950 text-neutral-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-neutral-200"
-            />
+    <div className="min-h-screen bg-[#0f0f0f] text-[#f1f1f1] py-8 sm:py-12 px-4">
+      <div className="max-w-4xl mx-auto bg-[#181818] border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl">
+        {/* Header */}
+        <header className="flex items-center justify-between pb-6 border-b border-white/10 mb-8">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              className="p-2 hover:bg-white/10 rounded-full text-neutral-300 hover:text-white transition-colors pressable"
+            >
+              <IoArrowBack size={22} />
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-white">
+                Upload video
+              </h1>
+              <p className="text-neutral-400 text-xs mt-0.5">
+                Share your videos with the YouTube community
+              </p>
+            </div>
           </div>
+        </header>
 
-          {/* Description */}
-          <div className="mb-1">
-            <label className="block text-sm font-medium mb-1">
-              Description
-            </label>
-            <textarea
-              value={description}
-              name="description"
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter video description"
-              className="w-full border resize-none border-neutral-700 bg-neutral-950 text-neutral-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-neutral-200"
-              rows={4}
-            />
-          </div>
-
-          {/* Thumbnail */}
-          <div className="text-sm font-medium mb-1">Thumbnail</div>
-          <input type="file" className="hidden" name="thumbnail" ref={fileRef} onChange={changeHandler}/>
-          {!thumbnail &&
-          <div className="w-40  p-8 border bg-neutral-950 border-neutral-500 rounded-sm cursor-pointer"  onClick={clickHandler}>
-            
-              <BiImageAdd className="mx-auto size-8"></BiImageAdd>
-              <div className="text-xs text-neutral-400 text-center ">Upload File</div>
-              
-
-            
-          </div>
-          }
-          {thumbnail  &&
-          <div className="flex gap-x-3 items-center">
-
-              <Image
-              src={thumbnail}
-              width={50}
-              height={50}
-              className="w-40 h-36 rounded-md"
+        <form action={formAction} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left: File Pickers */}
+          <div className="space-y-6">
+            {/* Video File Zone */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-2.5 text-neutral-300">
+                Video File
+              </label>
+              <input
+                type="file"
+                name="video"
+                accept="video/*"
+                className="hidden"
+                ref={videoInputRef}
+                onChange={(e) => handleFileChange(e, "video")}
+                required
               />
-              <button type="button" className="bg-neutral-700 hover:bg-neutral-600 cursor-pointer rounded-full py-1 px-2 h-fit" onClick={()=>setThumbnail(null)}>remove</button>
+              <div
+                onClick={() => videoInputRef.current?.click()}
+                className={`group aspect-video rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer p-4 ${
+                  videoFile
+                    ? "border-red-500/60 bg-red-500/5"
+                    : "border-white/15 bg-[#121212] hover:border-white/30"
+                }`}
+              >
+                {videoFile ? (
+                  <div className="text-center">
+                    <BiCheckCircle className="text-red-500 size-12 mx-auto mb-2" />
+                    <p className="text-sm font-semibold truncate max-w-[220px] text-white">
+                      {videoFile.name}
+                    </p>
+                    <p className="text-xs text-neutral-400 mt-1">
+                      {(videoFile.size / (1024 * 1024)).toFixed(1)} MB • Click to change
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <BiVideoPlus className="size-12 text-neutral-500 group-hover:text-neutral-300 transition-colors" />
+                    <p className="text-sm font-semibold text-neutral-300 mt-2">
+                      Select video to upload
+                    </p>
+                    <p className="text-xs text-neutral-500 mt-1">MP4, WebM, or MOV</p>
+                  </>
+                )}
+              </div>
             </div>
-          }
 
-
-          {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Tags</label>
-            <div className="flex flex-wrap gap-2">
-              {availableTags.map((tag, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleTagChange({ target: { value: tag } })}
-                  className={`px-3 py-1 rounded-full border text-sm transition ${
-                    tags.includes(tag)
-                      ? "bg-red-600 text-white border-red-600"
-                      : "bg-neutral-950 text-neutral-400 border-neutral-700 hover:bg-neutral-700 hover:text-neutral-200"
-                  }`}
+            {/* Thumbnail Zone */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-2.5 text-neutral-300">
+                Thumbnail
+              </label>
+              <input
+                type="file"
+                name="thumbnail"
+                accept="image/*"
+                className="hidden"
+                ref={thumbInputRef}
+                onChange={(e) => handleFileChange(e, "thumb")}
+                required
+              />
+              {!thumbnailPreview ? (
+                <div
+                  onClick={() => thumbInputRef.current?.click()}
+                  className="w-48 aspect-video rounded-2xl border-2 border-dashed border-white/15 bg-[#121212] flex flex-col items-center justify-center cursor-pointer hover:border-white/30 transition-all"
                 >
-                  {tag}
-                </button>
-              ))}
+                  <BiImageAdd className="size-8 text-neutral-500" />
+                  <span className="text-xs font-semibold text-neutral-400 mt-1.5">
+                    Upload image
+                  </span>
+                </div>
+              ) : (
+                <div className="relative w-48 aspect-video rounded-2xl overflow-hidden group border border-white/10 shadow-lg">
+                  <Image
+                    src={thumbnailPreview}
+                    fill
+                    className="object-cover"
+                    alt="Thumbnail preview"
+                  />
+                  <div
+                    onClick={() => thumbInputRef.current?.click()}
+                    className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                  >
+                    <span className="text-xs font-bold text-white">Change</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-          <input type="hidden" name="tags" value={tags.join(",")} />
 
-          {/* Shorts Toggle */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="shorts"
-              checked={isShort}
-              onChange={() => setIsShort(!isShort)}
-              className="w-4 h-4 cursor-pointer accent-neutral-200"
-            />
-            <label htmlFor="shorts" className="text-sm font-medium">
-              This is a Short
-            </label>
+          {/* Right: Metadata Inputs */}
+          <div className="space-y-5">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-2 text-neutral-300">
+                Title
+              </label>
+              <input
+                type="text"
+                name="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Add a title that describes your video"
+                className="w-full bg-[#121212] border border-white/10 rounded-xl p-3 text-sm text-white placeholder-neutral-500 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-2 text-neutral-300">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Tell viewers about your video"
+                rows={4}
+                className="w-full bg-[#121212] border border-white/10 rounded-xl p-3 text-sm text-white placeholder-neutral-500 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-2 text-neutral-300">
+                Category Tags
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {availableTags.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => toggleTag(tag)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all pressable ${
+                      selectedTags.includes(tag)
+                        ? "bg-red-600 border-red-600 text-white shadow-sm"
+                        : "bg-white/5 border-white/10 text-neutral-300 hover:bg-white/10"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+              <input type="hidden" name="tags" value={selectedTags.join(",")} />
+              <input type="hidden" name="isShort" value={isShort.toString()} />
+            </div>
+
+            <div className="flex items-center gap-3 p-3.5 bg-[#121212] rounded-xl border border-white/5">
+              <input
+                type="checkbox"
+                id="isShort"
+                checked={isShort}
+                onChange={() => setIsShort(!isShort)}
+                className="size-4 accent-red-600 cursor-pointer"
+              />
+              <label
+                htmlFor="isShort"
+                className="text-xs sm:text-sm font-medium text-neutral-300 cursor-pointer select-none"
+              >
+                Upload as a YouTube Short
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-3.5 rounded-full pressable transition-all shadow-lg shadow-red-600/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {isPending ? (
+                <>
+                  <BiLoaderAlt className="animate-spin size-5" />
+                  <span>Publishing video...</span>
+                </>
+              ) : (
+                "Publish Video"
+              )}
+            </button>
           </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            className="w-full cursor-pointer hover:bg-neutral-300 bg-neutral-200  text-neutral-900 font-medium py-2 rounded-md  transition"
-          >
-            Upload Video
-          </button>
         </form>
       </div>
     </div>

@@ -1,61 +1,53 @@
-import { cookies } from "next/headers";
-import { PrismaClient } from "@prisma/client";
+import { cookies } from 'next/headers'
 import prisma from '../utils'
 
+// ─── toggleLike ───────────────────────────────────────────────────────────────
+// D2 fix: removed console.log statements; safely handles authentication
+export async function toggleLike(commentId, hasLiked) {
+  let cookieStore = await cookies()
+  let id = Number(cookieStore.get('id')?.value)
+  if (!id) return { status: 401, message: 'Unauthorized' }
 
-// let prisma=new PrismaClient()
+  const cId = Number(commentId)
+  if (!cId) return { status: 400, message: 'Invalid comment ID' }
 
-export async function toggleLike(commentId,hasLiked){
-    console.log(hasLiked)
-    console.log(commentId)
-    let cookieStore=await cookies()
-    let id=Number(cookieStore.get('id').value) 
-    try {
-        if(!hasLiked){
-            await prisma.commentLike.create({
-                data:{
-                        userId:id,
-                        commentId
-                }
-            })
-            console.log('added commentLike successfully')
-        }
-        else{
-            await prisma.commentLike.delete({
-                where:{
-                    userId_commentId:{
-
-                        userId:id,
-                        commentId
-                    }
-                }
-            })
-            console.log('deleted commentLIke successfully')
-
-        }
-        
-        
-    } catch (error) {
-        console.log(error.message)
+  try {
+    if (!hasLiked) {
+      await prisma.commentLike.upsert({
+        where: {
+          userId_commentId: { userId: id, commentId: cId },
+        },
+        update: {},
+        create: { userId: id, commentId: cId },
+      })
+    } else {
+      await prisma.commentLike.deleteMany({
+        where: { userId: id, commentId: cId },
+      })
     }
+    return { status: 200 }
+  } catch (error) {
+    return { status: 500, message: 'Failed to toggle comment like' }
+  }
 }
 
-export async function getLikeState(commentId){
-    let cookieStore=await cookies()
+// ─── getLikeState ─────────────────────────────────────────────────────────────
+export async function getLikeState(commentId) {
+  let cookieStore = await cookies()
+  let id = Number(cookieStore.get('id')?.value)
+  if (!id) return { hasLiked: false }
 
-    let id =Number(cookieStore.get('id').value)
-    try {
-        let commentLike=await prisma.commentLike.findUnique({
-            where:{
-                userId:id,
-                commentId
-            }
-        })
-        if(!commentLike)return{hasLiked:false}
-        return {hasLiked:true}
-    } catch (error) {
-        console.log(error.message)
-        return {hasLiked:false}
-    }
+  const cId = Number(commentId)
+  if (!cId) return { hasLiked: false }
 
+  try {
+    let commentLike = await prisma.commentLike.findUnique({
+      where: {
+        userId_commentId: { userId: id, commentId: cId },
+      },
+    })
+    return { hasLiked: Boolean(commentLike) }
+  } catch (error) {
+    return { hasLiked: false }
+  }
 }

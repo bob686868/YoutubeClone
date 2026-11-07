@@ -1,25 +1,20 @@
 import "server-only"
-import { unstable_cache } from "next/cache"
+import { cache } from "react"
 import { getProfilePhoto, getUsername } from "../actions/users"
 
-export async function fetchSignedUrl(userId){
-    const res=await getProfilePhoto(userId)
-    return res.profilePhoto
-}
+// Per-request memoization (replaces broken 12-hour static unstable_cache)
+export const getCachedProfilePhoto = cache(async (userId) => {
+  if (!userId) return "/profilePhoto.jpg"
+  const res = await getProfilePhoto(userId)
+  return res?.profilePhoto || "/profilePhoto.jpg"
+})
 
-export const getCachedProfilePhoto=unstable_cache(
-    fetchSignedUrl,
-    ["profile_photo"],
-    { tags: ["profilePhoto"],revalidate:60*60*12}
-)
+export const getCachedUsername = cache(async (userId) => {
+  if (!userId) return "User"
+  const res = await getUsername(userId)
+  return res?.username || "User"
+})
 
-export async function fetchUserName(userId){
-    const res=await getUsername(userId)
-    return res.username
-}
-
-export const getCachedUsername=unstable_cache(
-    fetchUserName,
-    ["username"],
-    { tags: ["username"],revalidate:60*60*24}
-)
+// Export aliases for backwards compatibility
+export const fetchSignedUrl = getCachedProfilePhoto
+export const fetchUserName = getCachedUsername

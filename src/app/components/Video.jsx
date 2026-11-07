@@ -1,130 +1,140 @@
-import React, { useState, useEffect, useRef } from "react";
-
-import {
-  MdOutlineWatchLater,
-  MdOutlinePlaylistAdd,
-  MdOutlineNotInterested,
-  MdFlag,
-} from "react-icons/md";
-import { RiShareForwardLine } from "react-icons/ri";
-
+"use client";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { formatDuration, formatProfileImageUrl, timeAgo } from "../utils";
+import { FaCheckCircle } from "react-icons/fa";
+import { formatDuration, timeAgo } from "../utils";
 import WatchLaterButton from "./WatchLaterButton";
 
-const options = [
-  { label: "Save to Watch later", icon: <MdOutlineWatchLater size={20} /> },
-  { label: "Save to playlist", icon: <MdOutlinePlaylistAdd size={20} /> },
-  { label: "Share", icon: <RiShareForwardLine size={20} /> },
-  { label: "Not interested", icon: <MdOutlineNotInterested size={20} /> },
-  { label: "Report", icon: <MdFlag size={20} /> },
-];
+const Video = ({ video, isSidebar = false }) => {
+  if (!video) return null;
 
-const Video = ({
-video
-}) => {
-  
-  let [isVisible, setIsVisible] = useState(false);
-  const [menuPosition, setMenuPosition] = useState("bottom"); // 'bottom' or 'top'
-  const dotsRef = useRef(null);
-  const menuRef = useRef(null);
-  let {id,uploader,title,description,duration,createdAt,thumbnail,profilePhoto}=video
-  let {name,uploaderId}=uploader
-  console.log(thumbnail)
-  useEffect(() => {
-    if (isVisible) {
-      // Prevent screen shift when hiding scrollbar
-      const scrollBarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = "hidden";
-      document.body.style.paddingRight = `${scrollBarWidth}px`;
-      const handleClick = (e) => {
-        // If click is outside menu and dots, close
-        if (
-          menuRef.current &&
-          !menuRef.current.contains(e.target) &&
-          dotsRef.current &&
-          !dotsRef.current.contains(e.target)
-        ) {
-          setIsVisible(false);
-        }
-      };
-      document.addEventListener("click", handleClick);
+  const {
+    id,
+    uploader,
+    title,
+    createdAt,
+    thumbnail,
+    duration,
+    _count,
+  } = video;
 
-      // Dynamic menu positioning
-      setTimeout(() => {
-        if (dotsRef.current && menuRef.current) {
-          const dotsRect = dotsRef.current.getBoundingClientRect();
-          const menuHeight = menuRef.current.offsetHeight;
-          const spaceBelow = window.innerHeight - dotsRect.bottom;
-          if (spaceBelow < menuHeight && dotsRect.top > menuHeight) {
-            setMenuPosition("top");
-          } else {
-            setMenuPosition("bottom");
-          }
-        }
-      }, 0);
+  const formattedDuration = duration ? formatDuration(duration) : "12:45";
+  const viewsText = _count?.views != null ? _count.views.toLocaleString() : "0";
+  const channelName = uploader?.username || uploader?.name || "Channel";
+  const avatarUrl = uploader?.profilePhoto || "/profilePhoto.jpg";
 
-      // Cleanup
-      return () => {
-        document.body.style.overflow = "scroll";
-        document.body.style.paddingRight = "";
-        document.removeEventListener("click", handleClick);
-      };
-    } else {
-      document.body.style.overflow = "scroll";
-      document.body.style.paddingRight = "";
-    }
-  }, [isVisible]);
-
-  return (
-    <div className=" flex flex-col mx-4 h-65 ">
-      <Link href={`/videos/${id}`}>
-        <Image
-          alt="video thumbnail"
-          width={150}
-          height={150}
-          src={thumbnail}
-          className="w-full   h-40 object-cover mb-3 rounded-md cursor-pointer"
-          ></Image>
+  // Sidebar Variant: Compact Horizontal Layout (For Video Page)
+  if (isSidebar) {
+    return (
+      <div className="flex gap-3 group cursor-pointer w-full items-start">
+        {/* Thumbnail Container */}
+        <Link
+          href={`/videos/${id}`}
+          className="relative flex-none w-40 sm:w-44 aspect-video bg-[#1a1a1a] rounded-xl overflow-hidden shadow-sm shrink-0"
+        >
+          <Image
+            alt={title}
+            src={thumbnail || "/thumbnails/thumbnail1.jpg"}
+            fill
+            sizes="176px"
+            className="object-cover group-hover:scale-[1.03] transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)]"
+          />
+          <div className="absolute bottom-1 right-1 bg-black/85 text-white text-[10px] font-semibold px-1 py-0.5 rounded tracking-tight">
+            {formattedDuration}
+          </div>
         </Link>
 
-      <div className="flex">
-        <Link href={`/user/${uploaderId}/home`}>
-          <Image
-            alt="profilePhoto"
-            src={uploader.profilePhoto}
-            width={150}
-            height={150}
-            className="size-7   rounded-full mr-3 "
-            ></Image>
+        {/* Info Section */}
+        <div className="flex flex-col min-w-0 pr-1 flex-1">
+          <Link href={`/videos/${id}`}>
+            <h4 className="text-sm font-semibold text-white line-clamp-2 leading-snug group-hover:text-neutral-200 transition-colors">
+              {title}
+            </h4>
           </Link>
 
-        <div className="flex flex-col w-full">
-          <div className="font-bold text-[15px] mb-3">{title}</div>
-          <div className="text-gray-500 mb-1">
-            {/* {name} */}
-            {name}
-          </div>
-          <div className="text-sm text-gray-500">
-            {/* {views}  •  {date} ago */}
-            {video._count.views} views • {timeAgo(createdAt)}
+          <div className="flex flex-col mt-1">
+            <Link
+              href={uploader?.id ? `/user/${uploader.id}/home` : "#"}
+              className="text-xs text-neutral-400 hover:text-white flex items-center gap-1 transition-colors"
+            >
+              <span className="truncate">{channelName}</span>
+              <FaCheckCircle className="text-[10px] text-neutral-500 shrink-0" />
+            </Link>
+
+            <div className="text-[11px] text-neutral-400 mt-0.5">
+              {viewsText} views • {timeAgo(createdAt)}
+            </div>
           </div>
         </div>
-        <div className="justify-self-end">
-          <div className="relative">
-            {/* <BsThreeDotsVertical
-              ref={dotsRef}
-              size={20}
-              className="w-6 h-6 cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsVisible(!isVisible);
-              }}
-            /> */}
-              <WatchLaterButton videoId={id}></WatchLaterButton>
+      </div>
+    );
+  }
+
+  // Default Variant: Vertical Card (For Home Feed Grid)
+  return (
+    <div className="flex flex-col w-full group">
+      {/* Thumbnail */}
+      <Link
+        href={`/videos/${id}`}
+        className="relative aspect-video w-full mb-3 rounded-2xl overflow-hidden bg-[#1a1a1a] shadow-sm ring-1 ring-white/5"
+      >
+        <Image
+          alt={title}
+          src={thumbnail || "/thumbnails/thumbnail1.jpg"}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1536px) 33vw, 25vw"
+          className="object-cover group-hover:scale-[1.03] transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)]"
+        />
+        <div className="absolute bottom-2 right-2 bg-black/85 text-white text-xs font-semibold px-1.5 py-0.5 rounded tracking-tight">
+          {formattedDuration}
+        </div>
+      </Link>
+
+      {/* Content Row */}
+      <div className="flex gap-3 items-start">
+        {/* Avatar */}
+        <Link
+          href={uploader?.id ? `/user/${uploader.id}/home` : "#"}
+          className="shrink-0"
+        >
+          <div className="relative w-9 h-9 rounded-full overflow-hidden ring-1 ring-white/10 hover:ring-2 hover:ring-white/30 transition-all">
+            <Image
+              alt={channelName}
+              src={avatarUrl}
+              fill
+              sizes="36px"
+              className="object-cover"
+            />
           </div>
+        </Link>
+
+        {/* Text Metadata */}
+        <div className="flex flex-col flex-1 min-w-0">
+          <Link href={`/videos/${id}`}>
+            <h3 className="font-semibold text-white text-[15px] line-clamp-2 leading-snug group-hover:text-neutral-200 transition-colors">
+              {title}
+            </h3>
+          </Link>
+
+          <div className="mt-1 flex flex-col">
+            <Link
+              href={uploader?.id ? `/user/${uploader.id}/home` : "#"}
+              className="text-xs text-neutral-400 hover:text-white flex items-center gap-1 transition-colors"
+            >
+              <span className="truncate">{channelName}</span>
+              <FaCheckCircle className="text-[10px] text-neutral-500 shrink-0" />
+            </Link>
+
+            <span className="text-xs text-neutral-400 mt-0.5">
+              {viewsText} views • {timeAgo(createdAt)}
+            </span>
+          </div>
+        </div>
+
+        {/* Action Button (Three dots on hover) */}
+        <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+          <WatchLaterButton videoId={id} />
         </div>
       </div>
     </div>

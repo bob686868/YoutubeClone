@@ -1,29 +1,32 @@
-// components/ChannelCard.jsx
-import { formatProfileImageUrl } from "@/app/utils";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 const ChannelCard = ({ subscribedTo }) => {
-  let { username, _count, profilePhoto, id } = subscribedTo;
+  if (!subscribedTo) return null;
+  const { username, _count, profilePhoto, id } = subscribedTo;
+
   return (
-    <div className="flex flex-col items-center  dark:bg-neutral-900 text-neutral-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer w-56 sm:w-64">
-      <Image
-        width={50}
-        height={50}
-        src={profilePhoto}
-        className="w-20 h-20 rounded-full object-cover mb-3"
-      />
-      <h3 className="text-base font-semibold text-center truncate">
+    <div className="flex flex-col items-center bg-[#1c1c1c] hover:bg-[#222222] text-[#f1f1f1] rounded-2xl p-5 border border-white/5 transition-all duration-200 group">
+      <Link href={`/user/${id}/home`} className="relative w-20 h-20 rounded-full overflow-hidden mb-3 ring-2 ring-white/10 group-hover:ring-white/30 transition-all">
+        <Image
+          fill
+          src={profilePhoto || "/profilePhoto.jpg"}
+          alt={username || "Channel"}
+          className="object-cover"
+        />
+      </Link>
+
+      <h3 className="text-sm font-semibold text-center truncate max-w-full text-white">
         {username}
       </h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400">
-        {_count.subscribers} subscribers
+      <p className="text-xs text-neutral-400 mt-0.5">
+        {_count?.subscribers || 0} subscribers
       </p>
 
       <Link
         href={`/user/${id}/home`}
-        className="mt-3 cursor-pointer bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-sm text-gray-700 dark:text-gray-200 px-4 py-1.5 rounded-full transition-all"
+        className="mt-4 bg-white/10 hover:bg-white/20 active:bg-white/25 text-xs font-semibold text-white px-4 py-1.5 rounded-full pressable transition-colors"
       >
         View Channel
       </Link>

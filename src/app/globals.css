@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  color-scheme: light !important;
+  --background: #0f0f0f;
+  --foreground: #f1f1f1;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -13,49 +13,123 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html,
+body {
+  background-color: #0f0f0f !important;
+  color: #f1f1f1 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Global Pointer & Interactive States */
+button,
+[role="button"],
+a,
+input[type="submit"],
+input[type="button"],
+select {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* Fix CSS typo and smooth center helper */
+.center {
+  transform: translateY(-50%);
+}
+
+/* Hide scrollbars cleanly across browsers while keeping scrollability */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar,
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Subtle sleek scrollbar for sidebar and long lists */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Snappy, tactile press feedback for buttons */
+.pressable {
+  transition: transform 0.14s cubic-bezier(0.2, 0, 0, 1),
+              background-color 0.15s ease,
+              filter 0.15s ease,
+              opacity 0.15s ease,
+              border-color 0.15s ease;
+  cursor: pointer;
+}
+
+.pressable:hover {
+  filter: brightness(1.08);
+}
+
+.pressable:active {
+  transform: scale(0.96);
+}
+
+/* High-fidelity shimmer animation for skeleton cards */
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
   }
 }
 
-html, body {
-  background: white !important;
-  color: black !important;
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #212121;
 }
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.10) 50%,
+    rgba(255, 255, 255, 0.04) 75%,
+    transparent 100%
+  );
+  animation: shimmer-sweep 1.8s infinite ease-in-out;
 }
-.center {
-  tranform: translateY(-50%);
-}
-/* .bg-transparent {
-  @apply bg-gray-200 bg-opacity-50;
-} */
 
-
-
-
-/* styles/globals.css (or imported global css) */
-
-/* Required Tailwind directives (if not already present) */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Banner custom styling to match YouTube's look */
+/* Watch Later banner styling */
 .watchlater-banner {
-  /* dark red gradient background with soft vignette */
-  background: radial-gradient(1200px 400px at 10% 30%, rgba(255,255,255,0.02), transparent 5%),
-              linear-gradient(90deg, #701a1a 0%, #431313 45%, #2a0c0c 100%);
-  box-shadow: inset 0 -20px 60px rgba(0,0,0,0.45), 0 2px 12px rgba(0,0,0,0.35);
+  background: radial-gradient(1200px 400px at 10% 30%, rgba(255, 255, 255, 0.05), transparent 50%),
+              linear-gradient(90deg, #5c1818 0%, #351212 50%, #1a0a0a 100%);
+  box-shadow: inset 0 -20px 60px rgba(0, 0, 0, 0.6), 0 4px 20px rgba(0, 0, 0, 0.4);
   border-radius: 16px;
 }
 
-/* Inner translucency/blur behind heading (subtle YouTube-like gloss) */
 .banner-inner::after {
   content: "";
   position: absolute;
@@ -64,87 +138,31 @@ body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 20%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 25%);
   mix-blend-mode: overlay;
   border-radius: inherit;
 }
 
-/* play button: white pill like YouTube */
+/* Pill and capsule buttons */
 .play-btn {
-  background: #fff;
-  color: #111;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.15), 0 6px 14px rgba(0,0,0,0.25);
-  transition: transform .08s ease, background .08s ease;
+  background: #ffffff;
+  color: #0f0f0f;
+  transition: all 0.15s ease;
 }
-.play-btn:hover { transform: translateY(-1px); }
 
-/* shuffle button: darker pill */
+.play-btn:hover {
+  background: #e5e5e5;
+  transform: scale(1.02);
+}
+
 .shuffle-btn {
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.06);
-  transition: background .08s ease, transform .08s ease;
-}
-.shuffle-btn:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
-
-/* small circular icon buttons on the right */
-.icon-circle {
-  background: rgba(255,255,255,0.06);
-  color: #fff;
-  width: 40px;
-  height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background .08s ease, transform .08s ease;
-  border-radius: 9999px;
-}
-.icon-circle:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
-
-/* Responsive tweaks */
-@media (max-width: 767px) {
-  .banner-inner { padding-left: 1rem; padding-right: 1rem; }
-  .right-icons { display: none !important; } /* matches screenshot: icons show on larger screens only */
-  .thumb { max-height: 200px; }
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.15s ease;
 }
 
-.watchlater-banner {
-  background: radial-gradient(1200px 400px at 10% 30%, rgba(255,255,255,0.02), transparent 5%),
-              linear-gradient(90deg, #701a1a 0%, #431313 45%, #2a0c0c 100%);
-  box-shadow: inset 0 -20px 60px rgba(0,0,0,0.45), 0 2px 12px rgba(0,0,0,0.35);
-}
-
-/* Ensure full responsiveness */
-@media (max-width: 1024px) {
-  .watchlater-banner {
-    border-radius: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  .watchlater-banner img {
-    max-height: 220px;
-  }
-}
-
-
-/* Shimmer animation */
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.animate-shimmer {
-  animation: shimmer 1.5s infinite linear;
-  background: linear-gradient(
-    90deg,
-    #e5e7eb 25%,
-    #f3f4f6 50%,
-    #e5e7eb 75%
-  );
-  background-size: 200% 100%;
+.shuffle-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.02);
 }

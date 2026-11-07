@@ -1,146 +1,156 @@
 "use client";
-import React from "react";
-import { useState } from "react";
-import { Menu } from "lucide-react";
+import React, { useState } from "react";
 import Sidebar from "./Sidebar";
-import Header from "../components/Header";
 import Image from "next/image";
-import { IoMenu } from "react-icons/io5";
-import { IoMic } from "react-icons/io5";
-import { IoNotifications } from "react-icons/io5";
-import { IoSearch } from "react-icons/io5";
+import { IoMenu, IoMic, IoNotifications, IoSearch } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
-import { BsThreeDotsVertical } from "react-icons/bs";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { searchVideosFrontEnd } from "./actions";
 import UserMenu from "../components/UserMenu";
 
-const HeaderWithSidebar = ({ userId, profilePhoto, username, logout }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  console.log(username, profilePhoto);
+const HeaderWithSidebar = ({
+  userId,
+  profilePhoto,
+  username,
+  logout,
+  children,
+}) => {
+  const pathname = usePathname();
+  const isWatchPage = pathname.startsWith("/videos/");
+
+  // On watch page, sidebar is always overlay drawer and starts closed
+  // On feed pages, desktop starts expanded (isCollapsedDesktop: false)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isCollapsedDesktop, setIsCollapsedDesktop] = useState(false);
+
+  const handleMenuClick = () => {
+    if (isWatchPage) {
+      setIsDrawerOpen((prev) => !prev);
+    } else {
+      // On mobile screens, open drawer; on desktop, toggle mini-sidebar
+      if (typeof window !== "undefined" && window.innerWidth < 1024) {
+        setIsDrawerOpen((prev) => !prev);
+      } else {
+        setIsCollapsedDesktop((prev) => !prev);
+      }
+    }
+  };
 
   return (
-    <div>
-      {/* <header className="fixed top-0 left-0 w-full bg-white flex items-center p-3 border-b z-50">
-        <button
-          className="p-2 cursor-pointer"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <Menu size={24} className="text-white" />
-        </button>
-      </header> */}
-
-      {/*old Header*/}
-      <header className="fixed top-0 left-0 right-0 h-14 bg-neutral-950 border-b border-neutral-600 z-40 text-neutral-100">
-        <div className="flex justify-between items-center h-full px-4">
-          {/* Left section */}
-          <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-[#0f0f0f] text-[#f1f1f1]">
+      {/* Fixed Top Header */}
+      <header className="fixed top-0 left-0 right-0 h-14 bg-[#0f0f0f]/95 backdrop-blur-md border-b border-white/5 z-40 text-[#f1f1f1] px-4">
+        <div className="flex justify-between items-center h-full gap-4">
+          {/* Left section: Hamburger & Logo */}
+          <div className="flex items-center gap-3 shrink-0">
             <button
-              className="p-2 hover:bg-neutral-700 cursor-pointer rounded-full group relative"
-              onClick={() => {
-                console.log("opened");
-                setIsOpen((prev) => !prev);
-              }}
+              aria-label="Toggle navigation menu"
+              onClick={handleMenuClick}
+              className="p-2.5 hover:bg-white/10 active:bg-white/20 rounded-full cursor-pointer pressable text-neutral-200 transition-colors"
             >
-              <IoMenu size={24} />
-              <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
-                <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg ">
-                  Menu
-                  <div className="absolute w-2 h-2 bg-[#606060] transform rotate-45 -top-1 left-1/2 -translate-x-1/2"></div>
-                </div>
-              </div>
+              <IoMenu size={22} />
             </button>
 
-            <div className="flex items-center -ml-5 gap-1">
-              <Image
-                src="/youtube.png"
-                alt="YouTube"
-                width={60}
-                height={60}
-                className="inline-block "
-                priority
-              />
-
-              <span className="text-xl font-semibold -ml-3 tracking-tighter">
+            <Link href="/" className="flex items-center gap-1 group py-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width={28}
+                height={28}
+                className="transform group-hover:scale-105 transition-transform duration-200"
+              >
+                <path
+                  d="M23.498 6.186a2.997 2.997 0 0 0-2.116-2.118C19.673 3.5 12 3.5 12 3.5s-7.674 0-9.382.568A2.997 2.997 0 0 0 .502 6.186C0 7.894 0 12 0 12s0 4.106.502 5.814a2.997 2.997 0 0 0 2.116 2.118C24 16.106 24 12 24 12s0-4.106-.502-5.814z"
+                  fill="#FF0000"
+                />
+                <path d="M9.75 15.02V8.98l6.5 3.02-6.5 3.02z" fill="#FFFFFF" />
+              </svg>
+              <span className="text-xl font-bold tracking-tighter text-white">
                 YouTube
               </span>
-            </div>
+            </Link>
           </div>
 
-          {/* Center section */}
-          <div className="flex-1 flex items-center justify-center mx-4 whitespace-nowrap">
-            <div className="flex">
-              <form action={searchVideosFrontEnd} className="flex">
+          {/* Center section: Search Bar & Mic */}
+          <div className="flex-1 max-w-2xl flex items-center justify-center">
+            <form
+              action={searchVideosFrontEnd}
+              className="flex items-center w-full max-w-lg group"
+            >
+              <div className="flex-1 flex items-center bg-[#121212] border border-white/15 rounded-l-full px-4 py-2 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500/50 transition-all duration-150">
                 <input
                   type="text"
                   name="searchText"
                   placeholder="Search"
-                  className="px-4 py-2 border flex-grow min-w-0 border-neutral-600 rounded-l-full focus:outline-none focus:border-neutral-400 text-sm"
+                  autoComplete="off"
+                  className="w-full bg-transparent text-sm text-white placeholder-neutral-500 focus:outline-none"
                 />
-                <button
-                  type="submit"
-                  className="px-6 py-[6px] bg-neutral-800 border border-l-0 border-neutral-600 cursor-pointer hover:bg-neutral-700 rounded-r-full group relative"
-                >
-                  <IoSearch size={20} className="inline" />
-                </button>
-              </form>
-            </div>
-
-            <button className="ml-4 p-2 hover:bg-neutral-700 cursor-pointer rounded-full group relative">
-              <IoMic size={24} />
-              <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
-                <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
-                  Search with your voice
-                  <div className="absolute w-2 h-2 bg-[#606060] transform rotate-45 -top-1 left-1/2 -translate-x-1/2"></div>
-                </div>
               </div>
+              <button
+                type="submit"
+                aria-label="Submit Search"
+                className="px-6 py-2 bg-[#222222] hover:bg-[#272727] border border-l-0 border-white/15 rounded-r-full pressable text-neutral-300 hover:text-white transition-colors flex items-center justify-center"
+              >
+                <IoSearch size={19} />
+              </button>
+            </form>
+
+            <button
+              aria-label="Voice search"
+              className="hidden sm:flex ml-3 p-2.5 bg-[#1f1f1f] hover:bg-[#272727] active:bg-[#333333] rounded-full cursor-pointer pressable text-neutral-200 transition-colors shrink-0"
+            >
+              <IoMic size={20} />
             </button>
           </div>
 
-          {/* Right section */}
-          <div className="flex items-center gap-2">
-            <Link href="/createVideo">
-              <button className="p-2 hover:bg-neutral-700 cursor-pointer rounded-full group relative">
-                <FaPlus size={20} />
-                <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
-                  <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
-                    Create
-                    <div className="absolute w-2 h-2 bg-[#606060] transform rotate-45 -top-1 left-1/2 -translate-x-1/2"></div>
-                  </div>
-                </div>
-              </button>
+          {/* Right section: Create, Notifications, Profile */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <Link
+              href="/createVideo"
+              className="flex items-center gap-2 px-3 py-1.5 hover:bg-white/10 active:bg-white/20 rounded-full text-sm font-medium text-white transition-colors pressable"
+            >
+              <FaPlus size={14} />
+              <span className="hidden sm:inline">Create</span>
             </Link>
-            <button className="p-2 hover:bg-neutral-700 rounded-full cursor-pointer group relative">
-              <IoNotifications size={24} />
-              <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
-                <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
-                  Notifications
-                  <div className="absolute w-2 h-2 bg-[#606060] transform rotate-45 -top-1 left-1/2 -translate-x-1/2"></div>
-                </div>
-              </div>
+
+            <button
+              aria-label="Notifications"
+              className="p-2.5 hover:bg-white/10 active:bg-white/20 rounded-full cursor-pointer pressable text-neutral-200 transition-colors"
+            >
+              <IoNotifications size={20} />
             </button>
+
             <UserMenu
-              username={username.username}
+              username={username?.username || "User"}
               userId={userId}
               profilePhoto={profilePhoto}
               logout={logout}
             />
-            {/* <div className="w-8 h-8 rounded-full bg-gray-200 ml-2"></div> */}
-            <button className="p-2 hover:bg-neutral-700 rounded-full cursor-pointer group relative">
-              <BsThreeDotsVertical size={20} />
-              <div className="absolute hidden group-hover:block top-full left-1/2 -translate-x-1/2 mt-2 z-50">
-                <div className="bg-[#606060] text-white text-xs rounded py-1.5 px-2.5 whitespace-nowrap shadow-lg">
-                  Settings
-                  <div className="absolute w-2 h-2 bg-[#606060] transform rotate-45 -top-1 left-1/2 -translate-x-1/2"></div>
-                </div>
-              </div>
-            </button>
           </div>
         </div>
       </header>
 
-      {/* Sidebar */}
-      <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
+      {/* Sidebar Component */}
+      <Sidebar
+        isOpen={isDrawerOpen}
+        setIsOpen={setIsDrawerOpen}
+        isWatchPage={isWatchPage}
+        isCollapsedDesktop={isCollapsedDesktop}
+      />
+
+      {/* Main Content Area */}
+      <main
+        className={`min-h-screen pt-14 bg-[#0f0f0f] transition-[padding] duration-200 ease-out ${
+          isWatchPage
+            ? "w-full"
+            : isCollapsedDesktop
+            ? "lg:pl-[72px]"
+            : "lg:pl-60"
+        }`}
+      >
+        {children}
+      </main>
     </div>
   );
 };

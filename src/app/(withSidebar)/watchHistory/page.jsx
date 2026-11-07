@@ -1,24 +1,13 @@
-import { getVideosOfWatchHistory } from "@/app/actions/watchHistory";
 import React from "react";
+import { getVideosOfWatchHistory } from "@/app/actions/watchHistory";
 import VideoGrid from "../watchLater/VideoGrid";
 
-const page = async () => {
-  let { watchHistory } = await getVideosOfWatchHistory();
-  let formattedVideos = watchHistory
-  console.log(formattedVideos)
-  console.log('adfinadfinfdiinaf')
+export default async function WatchHistoryPage() {
+  const { watchHistory = [] } = await getVideosOfWatchHistory();
+
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <div className="flex">
-        <main className="flex-1 md:ml-5 p-4 sm:p-6 mt-5">
-          {/* <h1 className="text-xl sm:text-2xl font-semibold mb-4">
-            Liked Videos
-          </h1> */}
-          <VideoGrid title={"Watch History"} videos={formattedVideos} />
-        </main>
-      </div>
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+      <VideoGrid title="Watch History" videos={watchHistory} />
     </div>
   );
-};
-
-export default page;
+}

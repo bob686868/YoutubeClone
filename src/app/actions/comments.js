@@ -1,173 +1,200 @@
-import { PrismaClient } from "@prisma/client";
-import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
 import prisma from '../utils'
-import {getProfilePhotoFromPath} from './videos'
+import { getProfilePhotoFromPath } from './videos'
 
-// let prisma=new PrismaClient()
+// Minimal user fields — C1 fix: excludes password
+const USER_SELECT = { id: true, username: true, profilePhoto: true }
 
-export async function addComment(text,videoId){
-    let cookieStore=await cookies()
-    videoId=Number(videoId)
-    let userId=Number(cookieStore.get('id').value)
-    try {
-           await prisma.comment.create({
-                data:{
-                    text,
-                    userId,
-                    videoId
-                },
-            })
-            revalidatePath(`/videos/${videoId}`)
-    } catch (error) {
-        console.error(error.message)
-        return {status:500}
-    }
-}
-export async function addReply(text,commentId){
-    console.log("entered add reply:")
-    console.log(text)
-    let cookieStore=await cookies()
-    let userId=Number(cookieStore.get('id').value)
+// ─── addComment ───────────────────────────────────────────────────────────────
+export async function addComment(text, videoId) {
+  let cookieStore = await cookies()
+  let userId = Number(cookieStore.get('id')?.value)
+  if (!userId) return { status: 401, error: 'Please log in to comment' }
 
-    try {
-            await prisma.comment.create({
-                data:{
-                    text,
-                    userId,
-                    commentId
-                }
-            })        
-         
-        console.log("added reply")
-        return {status:200}
-    } catch (error) {
-        console.error(error.message)
-        return {status:500}
-    }
-} 
+  videoId = Number(videoId)
+  if (!videoId || !text || !text.trim()) {
+    return { status: 400, error: 'Valid comment text and videoId required' }
+  }
 
-export async function deleteComment(id){
-    try {
-        await prisma.comment.delete({
-            where:{id}
-        })
-        return {status:200}
-    } catch (error) {
-        console.error(error.message)
-        return {status:500}
-    }
+  try {
+    await prisma.comment.create({
+      data: {
+        text: text.trim(),
+        userId,
+        videoId,
+      },
+    })
+    revalidatePath(`/videos/${videoId}`)
+    return { status: 200 }
+  } catch (error) {
+    return { status: 500, message: 'Failed to add comment' }
+  }
 }
 
-export async function editComment(id,text){
-    try {
-        if(!id || !text)return {status:400}
-        
-        await prisma.comment.update({
-            where:{id},
-            data:{text}
-        })
-        return {status:200}
-    } catch (error) {
-        console.error(error.message)
-        return {status:500}
-    }
+// ─── addReply ─────────────────────────────────────────────────────────────────
+export async function addReply(text, commentId) {
+  let cookieStore = await cookies()
+  let userId = Number(cookieStore.get('id')?.value)
+  if (!userId) return { status: 401, error: 'Please log in to reply' }
+
+  commentId = Number(commentId)
+  if (!commentId || !text || !text.trim()) {
+    return { status: 400, error: 'Valid reply text and commentId required' }
+  }
+
+  try {
+    await prisma.comment.create({
+      data: {
+        text: text.trim(),
+        userId,
+        commentId,
+      },
+    })
+    return { status: 200 }
+  } catch (error) {
+    return { status: 500, message: 'Failed to add reply' }
+  }
 }
 
+// ─── deleteComment ────────────────────────────────────────────────────────────
+export async function deleteComment(id) {
+  let cookieStore = await cookies()
+  let userId = Number(cookieStore.get('id')?.value)
+  if (!userId) return { status: 401, message: 'Unauthorized' }
 
-export async function getComments(videoId){
-    console.log('entered get comments')
-    videoId=Number(videoId)
-    let cookieStore=await cookies()
-    console.log(videoId)
-    let userId =Number(cookieStore.get('id').value)
-    try {
-            let comments=await prisma.comment.findMany({
-                where:{
+  try {
+    const comment = await prisma.comment.findUnique({
+      where: { id: Number(id) },
+      select: { userId: true, videoId: true },
+    })
 
-                        videoId,
-                        commentId:null
-                },
-                select:{
-                    id:true,
-                    text:true,
-                    createdAt:true,
-                    user:true,
-                    _count:{
-                        select:{
-                            subcomments:true,
-                            likes:true
-                        },
-                        
-                    },
-                    likes:{
-                        where:{userId},
-                        select:{id:true},
-                        take:1
-                    }
-                }
-            })
-            console.log("got comments")
-            let formatted=await Promise.all(comments.map(async(c)=>{
+    if (!comment) return { status: 404, message: 'Comment not found' }
+    if (comment.userId !== userId) return { status: 403, message: 'Forbidden' }
 
-                let res=await getProfilePhotoFromPath(c.user.profilePhoto)
-                return {
-                    id:c.id,
-                    text:c.text,
-                    createdAt:c.createdAt,
-                    user:{...c.user,profilePhoto:res.data.signedUrl},
-                    replyCount:c._count.subcomments,
-                    likedByMe: c.likes.length>0,
-                    likesCount:c._count.likes
+    await prisma.comment.delete({ where: { id: Number(id) } })
+    if (comment.videoId) revalidatePath(`/videos/${comment.videoId}`)
+    return { status: 200 }
+  } catch (error) {
+    return { status: 500, message: 'Failed to delete comment' }
+  }
+}
+
+// ─── editComment ──────────────────────────────────────────────────────────────
+export async function editComment(id, text) {
+  let cookieStore = await cookies()
+  let userId = Number(cookieStore.get('id')?.value)
+  if (!userId) return { status: 401, message: 'Unauthorized' }
+  if (!id || !text || !text.trim()) return { status: 400, message: 'id and valid text are required' }
+
+  try {
+    const comment = await prisma.comment.findUnique({
+      where: { id: Number(id) },
+      select: { userId: true, videoId: true },
+    })
+
+    if (!comment) return { status: 404, message: 'Comment not found' }
+    if (comment.userId !== userId) return { status: 403, message: 'Forbidden' }
+
+    await prisma.comment.update({
+      where: { id: Number(id) },
+      data: { text: text.trim() },
+    })
+    if (comment.videoId) revalidatePath(`/videos/${comment.videoId}`)
+    return { status: 200 }
+  } catch (error) {
+    return { status: 500, message: 'Failed to edit comment' }
+  }
+}
+
+// ─── getComments ──────────────────────────────────────────────────────────────
+// C1 fix: select only safe user fields (no password)
+// Safe for both authenticated and guest users
+export async function getComments(videoId) {
+  videoId = Number(videoId)
+  let cookieStore = await cookies()
+  let userId = Number(cookieStore.get('id')?.value) || null
+
+  try {
+    let comments = await prisma.comment.findMany({
+      where: { videoId, commentId: null },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        text: true,
+        createdAt: true,
+        user: { select: USER_SELECT },
+        _count: { select: { subcomments: true, likes: true } },
+        ...(userId
+          ? {
+              likes: { where: { userId }, select: { id: true }, take: 1 },
             }
-            }
-        ))
-            console.log("got formatted comments")
-            console.log(formatted)
-            return {comments:formatted,status:200}
-        } catch (error) {
-            console.error(error.message)
-            return {status:500}   
-            }
-    }
+          : {}),
+      },
+    })
 
-export async function getReplies({commentId}){
-        let cookieStore=await cookies()
-        let userId =Number(cookieStore.get('id').value)
-        try{
-            let replies=await prisma.comment.findMany({
-                where:{
-                    commentId
-                },
-                select:{
-                    id:true,
-                    text:true,
-                    createdAt:true,
-                    _count:{
-                        select:{likes:true}
-                    },
-                    user:{
-                        select:{id:true,username:true,profilePhoto:true}
-                    },
-                    likes:{
-                        where:{userId},
-                        select:{id:true},
-                        take:1
-                    }
-                }
-
-            })
-            let formatted=replies.map((r)=>({
-                id:r.id,
-                text:r.text,
-                createdAt:r.createdAt,
-                user:r.user,
-                likedByMe:r.likes.length>0,
-                likesCount:c._count.likes
-            }))
-            return {comments:formatted,status:200}
-        } catch (error) {
-        console.error(error.message)
-        return {status:500}   
+    let formatted = await Promise.all(
+      comments.map(async (c) => {
+        let res = await getProfilePhotoFromPath(c.user.profilePhoto)
+        return {
+          id: c.id,
+          text: c.text,
+          createdAt: c.createdAt,
+          user: { ...c.user, profilePhoto: res.data?.signedUrl ?? '' },
+          replyCount: c._count.subcomments,
+          likedByMe: Boolean(c.likes && c.likes.length > 0),
+          likesCount: c._count.likes,
         }
+      })
+    )
+
+    return { comments: formatted, status: 200 }
+  } catch (error) {
+    return { status: 500, message: 'Failed to fetch comments' }
+  }
+}
+
+// ─── getReplies ───────────────────────────────────────────────────────────────
+// A2 fix: resolved variable `r` reference
+// Safe for both authenticated and guest users
+export async function getReplies({ commentId }) {
+  let cookieStore = await cookies()
+  let userId = Number(cookieStore.get('id')?.value) || null
+
+  try {
+    let replies = await prisma.comment.findMany({
+      where: { commentId: Number(commentId) },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        text: true,
+        createdAt: true,
+        _count: { select: { likes: true } },
+        user: { select: USER_SELECT },
+        ...(userId
+          ? {
+              likes: { where: { userId }, select: { id: true }, take: 1 },
+            }
+          : {}),
+      },
+    })
+
+    let formatted = await Promise.all(
+      replies.map(async (r) => {
+        let res = await getProfilePhotoFromPath(r.user.profilePhoto)
+        return {
+          id: r.id,
+          text: r.text,
+          createdAt: r.createdAt,
+          user: { ...r.user, profilePhoto: res.data?.signedUrl ?? '' },
+          likedByMe: Boolean(r.likes && r.likes.length > 0),
+          likesCount: r._count.likes,
+        }
+      })
+    )
+
+    return { comments: formatted, status: 200 }
+  } catch (error) {
+    return { status: 500, message: 'Failed to fetch replies' }
+  }
 }

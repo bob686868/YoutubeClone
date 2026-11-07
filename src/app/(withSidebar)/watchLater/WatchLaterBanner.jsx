@@ -1,71 +1,74 @@
 import React from "react";
-import { Play, Shuffle, Download, MoreVertical } from "lucide-react";
+import { Play, Shuffle } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function WatchLaterBanner({
   firstVideo,
-  owner = "Ibrahim Zakaria",
-  count,
-  title
+  owner = "You",
+  count = 0,
+  title = "Playlist",
 }) {
-  let details = `${count} videos  •  Updated today `;
-  return (
-    <section
-      className={`watchlater-banner relative w-full rounded-2xl overflow-hidden text-white ${
-        !firstVideo ? "h-60" : null
-      }`}
-    >
-      <div className="relative flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6 p-5 sm:p-8">
-        {/* Thumbnail */}
-        <div className="w-full sm:w-[400px] lg:w-[275px] flex-shrink-0 rounded-xl overflow-hidden">
-          {firstVideo && (
-            <Image
-            width={150}
-            height={150}
-            src={firstVideo.thumbnail}
-              alt="watch later thumbnail"
-              // className="w-full h-full object-cover"
-          className="w-full   h-40 object-cover mb-3 rounded-md cursor-pointer"
+  const details = `${count} ${count === 1 ? "video" : "videos"} • Updated recently`;
 
+  return (
+    <section className="watchlater-banner relative w-full rounded-2xl overflow-hidden text-white border border-white/5">
+      <div className="relative flex flex-col md:flex-row items-center md:items-start justify-between gap-6 p-6 sm:p-8">
+        {/* Thumbnail preview */}
+        <div className="w-full sm:w-[320px] md:w-[260px] aspect-video flex-shrink-0 rounded-xl overflow-hidden relative shadow-2xl bg-black/40 ring-1 ring-white/10">
+          {firstVideo?.thumbnail ? (
+            <Image
+              fill
+              src={firstVideo.thumbnail}
+              alt={firstVideo.title || "Playlist thumbnail"}
+              className="object-cover"
             />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-white/5 text-neutral-500 text-xs">
+              No videos yet
+            </div>
           )}
         </div>
 
         {/* Info */}
-        <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full">
-          <h1 className="text-[26px] sm:text-[30px] font-semibold leading-tight">
+        <div className="flex flex-col items-center md:items-start text-center md:text-left flex-1 min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
             {title}
           </h1>
 
           <div className="mt-1 space-y-0.5">
-            <p className="text-gray-300 text-sm sm:text-base font-medium">
-              {owner}
-            </p>
-            <p className="text-gray-400 text-sm">{details}</p>
+            <p className="text-neutral-300 text-sm font-medium">{owner}</p>
+            <p className="text-neutral-400 text-xs">{details}</p>
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 mt-6 w-full sm:w-auto">
-            <button className="bg-white text-black font-medium py-2 px-6 rounded-full flex items-center cursor-pointer justify-center gap-2 hover:bg-gray-200 transition">
-              <Play className="w-4 h-4" />
-              Play all
-            </button>
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-6">
+            {firstVideo?.id ? (
+              <Link
+                href={`/videos/${firstVideo.id}`}
+                className="play-btn py-2 px-6 rounded-full flex items-center justify-center gap-2 text-sm font-semibold pressable"
+              >
+                <Play className="w-4 h-4 fill-current" />
+                Play all
+              </Link>
+            ) : (
+              <button
+                disabled
+                className="play-btn py-2 px-6 rounded-full flex items-center justify-center gap-2 text-sm font-semibold opacity-50 cursor-not-allowed"
+              >
+                <Play className="w-4 h-4 fill-current" />
+                Play all
+              </button>
+            )}
 
-            <button className="bg-white/10 text-white cursor-pointer font-medium py-2 px-6 rounded-full flex items-center justify-center gap-2 border border-white/10 hover:bg-white/20 transition">
+            <button
+              type="button"
+              className="shuffle-btn py-2 px-6 rounded-full flex items-center justify-center gap-2 text-sm font-semibold pressable"
+            >
               <Shuffle className="w-4 h-4" />
               Shuffle
             </button>
           </div>
-        </div>
-
-        {/* Right icons (visible only on large screens) */}
-        <div className="hidden lg:flex flex-col gap-3 absolute right-5 top-5">
-          <button className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
-            <Download className="w-5 h-5" />
-          </button>
-          <button className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
-            <MoreVertical className="w-5 h-5" />
-          </button>
         </div>
       </div>
     </section>

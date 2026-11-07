@@ -1,82 +1,113 @@
 "use client";
-import React, { useEffect, useState,useRef } from "react";
-import { FaSignOutAlt } from "react-icons/fa";
+import React, { useEffect, useState, useRef } from "react";
+import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
+import { MdOutlineVideoLibrary, MdOutlineSettings } from "react-icons/md";
 import Link from "next/link";
 import Image from "next/image";
-// import { logout } from '../actions/users';
 
-const UserMenu = ({ username,profilePhoto,logout }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isToolTipVisible, setIsToolTipVisible] = useState(false);
-  let extraClasses = !isVisible ? "hidden" : "block";
-  let id=useRef(null);
-  let menuRef = useRef(null);
-  const mouseEnterHandler = () => {
-    id.current = setTimeout(() => setIsToolTipVisible(true), 1000);
-  };
-  const mouseLeaveHandler = () => {
-    setIsToolTipVisible(false);
-    clearTimeout(id.current);
-  };
-  const logoutHandler = () => {
-    logout();
-  };
-  const toggleVisible = () => setIsVisible((prev) => !prev);
-  function handleClickOutside(e) {
-    if (menuRef.current && !menuRef.current.contains(e.target)) {
-      setIsVisible(false);
-    }
-  }
+const UserMenu = ({ username = "User", profilePhoto, logout, userId }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
+
   useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  });
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  const toggleMenu = () => setIsOpen((prev) => !prev);
+
+  const displayPhoto = profilePhoto || "/profilePhoto.jpg";
+
   return (
-    <div className="relative">
-      <Image
-      src={profilePhoto}
-      width={50}
-      height={50}
-        className="w-8 h-8 rounded-full cursor-pointer bg-gray-200 ml-2"
-        onClick={toggleVisible}
-      ></Image>
-
-      <div
-        className={`absolute ${extraClasses} top-2 right-2 w-60 py-4 bg-neutral-900 rounded-md`}
-        ref={menuRef}
+    <div className="relative inline-block" ref={menuRef}>
+      {/* Trigger: Profile Picture */}
+      <button
+        onClick={toggleMenu}
+        aria-label="User account menu"
+        className="flex items-center focus:outline-none pressable rounded-full"
       >
-        <header className="flex gap-x-2 pb-3  px-4 border-b border-neutral-400">
-          <Image 
-              src={profilePhoto}
-              width={50}
-              height={50}
-              className="w-11 h-11  rounded-full bg-gray-200 "
-            />
+        <div className="relative w-8 h-8 rounded-full overflow-hidden ring-1 ring-white/15 hover:ring-2 hover:ring-white/30 transition-all">
+          <Image
+            alt="Profile"
+            src={displayPhoto}
+            fill
+            className="object-cover cursor-pointer"
+          />
+        </div>
+      </button>
 
+      {/* Dropdown Menu */}
+      {isOpen && (
+        <div className="absolute right-0 mt-2.5 w-72 bg-[#282828] text-[#f1f1f1] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.6)] py-2 z-50 border border-white/10 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150">
+          {/* Header Section */}
+          <div className="flex gap-3.5 px-4 py-3.5 border-b border-white/10 items-center">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 ring-1 ring-white/10">
+              <Image
+                src={displayPhoto}
+                fill
+                className="object-cover bg-neutral-800"
+                alt="Avatar"
+              />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-semibold text-sm truncate text-white">
+                {username}
+              </span>
+              <span className="text-neutral-400 text-xs truncate">
+                @{username.toLowerCase()}
+              </span>
+              <Link
+                href={userId ? `/user/${userId}/home` : "/changeAvatar"}
+                onClick={() => setIsOpen(false)}
+                className="text-blue-400 text-xs font-medium hover:text-blue-300 transition-colors mt-1.5"
+              >
+                View your channel
+              </Link>
+            </div>
+          </div>
 
-
-          <div>
-            <div className="">{username || "ibrahim"}</div>
-            <div className="mb-3">@{username || "ibrahim"}-h5o</div>
+          {/* Menu Items */}
+          <div className="py-2 text-sm">
             <Link
-              href={`/changeAvatar`}
-              className="text-blue-400  cursor-pointer relative"
-              onMouseEnter={mouseEnterHandler}
-              onMouseLeave={mouseLeaveHandler}
+              href="/changeAvatar"
+              onClick={() => setIsOpen(false)}
+              className="w-full flex items-center gap-4 px-4 py-2.5 hover:bg-white/10 transition-colors text-left"
             >
-              View your channel
-            {isToolTipVisible && <div className="absolute top-4 left-14 w-27 p-1 bg-neutral-900 text-neutral-100  text-xs transition duration-100 border border-neutral-300">view your channel</div>}
+              <FaUserCircle className="text-lg text-neutral-400" />
+              <span>Change Avatar</span>
             </Link>
-          </div>
-        </header>
 
-        <form action={logoutHandler}>
-          <div className=" py-2 px-4 flex mt-1 items-center hover:bg-neutral-700 cursor-pointer ">
-            <FaSignOutAlt className="mr-2 " />
-            <button className="cursor-pointer">Sign out</button>
+            <Link
+              href={userId ? `/user/${userId}/videos` : "/"}
+              onClick={() => setIsOpen(false)}
+              className="w-full flex items-center gap-4 px-4 py-2.5 hover:bg-white/10 transition-colors text-left"
+            >
+              <MdOutlineVideoLibrary className="text-lg text-neutral-400" />
+              <span>Your videos</span>
+            </Link>
+
+            <div className="h-px bg-white/10 my-1" />
+
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                logout();
+              }}
+              className="w-full cursor-pointer flex items-center gap-4 px-4 py-2.5 hover:bg-white/10 hover:text-red-400 transition-colors text-left text-neutral-200"
+            >
+              <FaSignOutAlt className="text-lg text-neutral-400" />
+              <span>Sign out</span>
+            </button>
           </div>
-        </form>
-      </div>
+        </div>
+      )}
     </div>
   );
 };

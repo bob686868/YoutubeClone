@@ -70,16 +70,13 @@ model Video {
   duration    Int
   thumbnail   String
   title       String
+  url         String
   description String
   isShort     Boolean  @default(false)
   createdAt   DateTime @default(now())
 
-  // User who uploaded the video
   uploader   User @relation(fields: [uploaderId], references: [id])
   uploaderId Int
-
-  // Users who viewed the video
-  // viewedBy User[] @relation("ViewedVideos")
 
   views View[]
 

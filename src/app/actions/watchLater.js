@@ -1,84 +1,92 @@
-import { PrismaClient } from "@prisma/client";
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers'
 import prisma from '../utils'
+import { resolveThumbnailUrl, resolveProfilePhotoUrl } from './videos'
 
-import {supabase} from '../serverUtils'
+// Uploader fields needed by the Video component (B4 fix: no password)
+const UPLOADER_SELECT = { id: true, username: true, profilePhoto: true }
 
-// let prisma=new PrismaClient()
-
+// ─── addVideoToWatchLater ────────────────────────────────────────────────────
 export async function addVideoToWatchLater(videoId) {
-    let cookieStore=await cookies()
-    console.log(videoId )
-    console.log('==-=-=-=-=-=-')
-    let userId=Number(cookieStore.get('id').value)
-    console.log('adding video to watch later backend')
-    try {
-        await prisma.watchLater.update({
-            where:{userId},
-            data:{
-                videos:{
-                    connect:{id:videoId}
-                }
-            }            
-        })
-       return {status:200} 
-    } catch (error) {
-        console.error(error.message)
-        return {status:500}
-    }
+  let cookieStore = await cookies()
+  let userId = Number(cookieStore.get('id')?.value)
+  if (!userId) return { status: 401, message: 'Unauthorized' }
+
+  const vidId = Number(videoId)
+  if (!vidId) return { status: 400, message: 'Invalid video ID' }
+
+  try {
+    await prisma.watchLater.upsert({
+      where: { userId },
+      update: { videos: { connect: { id: vidId } } },
+      create: {
+        user: { connect: { id: userId } },
+        videos: { connect: { id: vidId } },
+      },
+    })
+    return { status: 200 }
+  } catch (error) {
+    return { status: 500, message: 'Failed to add to Watch Later' }
+  }
 }
+
+// ─── removeVideoFromWatchLater ───────────────────────────────────────────────
 export async function removeVideoFromWatchLater(videoId) {
-    let cookieStore=await cookies()
-    let userId= Number(cookieStore.get('id').value)
-    try {
+  let cookieStore = await cookies()
+  let userId = Number(cookieStore.get('id')?.value)
+  if (!userId) return { status: 401, message: 'Unauthorized' }
 
-        await prisma.watchLater.update({
-            where:{
-                userId
-            },
-            data:{
-                videos:{
-                    disconnect:{
-                       id:videoId 
-                    }
-                }
-            }
-        }
-)
-       return {status:200} 
-    } catch (error) {
-        console.error(error.message)
-        return {status:500}
-    }
+  const vidId = Number(videoId)
+  if (!vidId) return { status: 400, message: 'Invalid video ID' }
+
+  try {
+    await prisma.watchLater.update({
+      where: { userId },
+      data: { videos: { disconnect: { id: vidId } } },
+    })
+    return { status: 200 }
+  } catch (error) {
+    return { status: 500, message: 'Failed to remove from Watch Later' }
+  }
 }
+
+// ─── getVideosOfWatchLater ───────────────────────────────────────────────────
+// C5 fix: use select so password is never fetched
 export async function getVideosOfWatchLater() {
-    let cookieStore=await cookies()
-    let id = Number(cookieStore.get('id').value)
-    try {
-        let watchLater=await prisma.watchLater.findUnique({
-        where:{userId:id},
-        include:{
-             videos:{
-                    include:{uploader:true,
-                        _count:{
-                        select:{
-                            views:true
-                        }
-                    }
-                },
-            },
-               },
+  let cookieStore = await cookies()
+  let id = Number(cookieStore.get('id')?.value)
+  if (!id) return { watchLater: [], status: 200 }
 
-            })
+  try {
+    let watchLater = await prisma.watchLater.findUnique({
+      where: { userId: id },
+      include: {
+        videos: {
+          select: {
+            id: true,
+            title: true,
+            thumbnail: true,
+            duration: true,
+            createdAt: true,
+            isShort: true,
+            uploaderId: true,
+            uploader: { select: UPLOADER_SELECT },
+            _count: { select: { views: true } },
+          },
+        },
+      },
+    })
 
-            watchLater=watchLater?.videos.map((v)=>{
-                let {data}=supabase.storage.from('thumbnails').getPublicUrl(v.thumbnail)
-                let url=data.publicUrl
-                return {...v,thumbnail:data.publicUrl}})
-           
-       return {watchLater,status:200} 
-    } catch (error) {
-        console.error(error.message)
-        return {status:500}
-    }
+    let videos = (watchLater?.videos ?? []).map((v) => ({
+      ...v,
+      thumbnail: resolveThumbnailUrl(v.thumbnail),
+      uploader: {
+        ...v.uploader,
+        profilePhoto: resolveProfilePhotoUrl(v.uploader?.profilePhoto),
+      },
+    }))
+
+    return { watchLater: videos, status: 200 }
+  } catch (error) {
+    return { status: 500, message: 'Failed to fetch Watch Later' }
+  }
 }

@@ -1,22 +1,31 @@
-import { getUserVideos } from "@/app/actions/videos";
 import React from "react";
+import { getUserVideos } from "@/app/actions/videos";
 import ProfileHeader from "../ProfileHeader";
-import Video from "@/app/(withSidebar)/user/[id]/home/Video";
+import Video from "@/app/components/Video";
 
-const page = async ({ params }) => {
-  let { id } = await params;
-  let { videos } = await getUserVideos(Number(id));
+const UserHomePage = async ({ params }) => {
+  const { id } = await params;
+  const { videos = [] } = await getUserVideos(Number(id));
 
   return (
-    <div className="bg-neutral-950 px-4">
-      <ProfileHeader activeTab={"home"} id={id}></ProfileHeader>
-      <div className="py-3 grid grid-cols-1 gap-2 min-h-[80vh] sm:grid-cols-2 lg:grid-cols-3">
-        {videos.map((v) => (
-          <Video video={v}></Video>
-        ))}
+    <div className="px-4 sm:px-8 max-w-7xl mx-auto min-h-[80vh]">
+      <ProfileHeader activeTab="home" id={id} />
+
+      <div className="py-6">
+        {videos.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-x-4 sm:gap-x-5 gap-y-8 sm:gap-y-10">
+            {videos.map((v) => (
+              <Video key={v.id} video={v} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 text-neutral-500 text-sm">
+            This channel has no videos yet.
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default page;
+export default UserHomePage;

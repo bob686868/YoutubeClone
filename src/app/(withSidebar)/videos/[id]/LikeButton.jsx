@@ -1,31 +1,53 @@
 "use client";
 import React, { useRef, useState } from "react";
 import { toggleLikeFrontEnd } from "./actions";
-import { FaThumbsUp } from "react-icons/fa";
-// import CustomLikeButton from "./CustomLikeButton";
+import { FaThumbsUp, FaRegThumbsUp, FaRegThumbsDown } from "react-icons/fa";
 
-const LikeButton = ({ likesCount, isLikedByMe,commentId }) => {
-  function updateLikeButtonState(){
-    if(likedByMe)setLikesCountState((prevState)=>prevState-1)
-    else setLikesCountState((prevState)=>prevState+1)
-    setLikedByMe((prevState)=>!prevState)
-    formRef.current.requestSubmit()
-  }
-  let [likedByMe, setLikedByMe] = useState(isLikedByMe);
-  let [likesCountState,setLikesCountState]=useState(likesCount)
-  let formRef=useRef()
+const LikeButton = ({ likesCount = 0, isLikedByMe = false, commentId }) => {
+  const [likedByMe, setLikedByMe] = useState(isLikedByMe);
+  const [count, setCount] = useState(likesCount);
+  const formRef = useRef(null);
+
+  const updateLikeButtonState = () => {
+    if (likedByMe) {
+      setCount((prev) => Math.max(0, prev - 1));
+    } else {
+      setCount((prev) => prev + 1);
+    }
+    setLikedByMe((prev) => !prev);
+    if (formRef.current) {
+      formRef.current.requestSubmit();
+    }
+  };
+
   return (
-    <button className="flex items-center gap-1 text-neutral-200    text-xs">
-      <span>{likesCountState}</span>
-      <form ref={formRef} action={toggleLikeFrontEnd}>
-
-        <button type="button" onClick={updateLikeButtonState}>
-          <FaThumbsUp className={likedByMe ? `text-blue-500 cursor-pointer` : " text-gray-300 hover:text-neutral-200 cursor-pointer"} />
+    <div className="flex items-center gap-1 text-xs text-neutral-400">
+      <form ref={formRef} action={toggleLikeFrontEnd} className="flex items-center">
+        <button
+          type="button"
+          onClick={updateLikeButtonState}
+          aria-label="Like comment"
+          className="p-1.5 hover:bg-white/10 rounded-full cursor-pointer pressable transition-colors text-neutral-300 hover:text-white"
+        >
+          {likedByMe ? (
+            <FaThumbsUp className="text-blue-400" size={13} />
+          ) : (
+            <FaRegThumbsUp size={13} />
+          )}
         </button>
-        <input type="hidden" value={ likedByMe ? "1" : "0"} name="hasLiked"/>
-        <input type="hidden" value={commentId} name="commentId"/>
+        {count > 0 && <span className="ml-0.5 text-xs font-medium">{count}</span>}
+        <input type="hidden" value={likedByMe ? "1" : "0"} name="hasLiked" />
+        <input type="hidden" value={commentId} name="commentId" />
       </form>
-    </button>
+
+      <button
+        type="button"
+        aria-label="Dislike comment"
+        className="p-1.5 hover:bg-white/10 rounded-full cursor-pointer pressable transition-colors text-neutral-300 hover:text-white"
+      >
+        <FaRegThumbsDown size={13} />
+      </button>
+    </div>
   );
 };
 

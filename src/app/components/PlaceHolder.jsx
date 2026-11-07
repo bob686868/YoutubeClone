@@ -1,18 +1,17 @@
 "use client";
-import React, { useRef } from "react";
+import React from "react";
+import { MdOutlineVideoLibrary } from "react-icons/md";
 
-const PlaceHolder = () => {
-  let divRef = useRef();
-  if (divRef.current) {
-    const rect = divRef.current.getBoundingClientRect();
-    console.log("position", rect);
-  }
+const PlaceHolder = ({ message = "No videos available" }) => {
   return (
-    <div
-      ref={divRef}
-      className="text-2xl text-neutral-400 absolute top-[80%] left-[50%] -translate-[50%]"
-    >
-      No videos Available
+    <div className="col-span-full flex flex-col items-center justify-center py-24 text-neutral-400">
+      <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-3">
+        <MdOutlineVideoLibrary size={32} className="text-neutral-500" />
+      </div>
+      <p className="text-lg font-medium text-neutral-300">{message}</p>
+      <p className="text-sm text-neutral-500 mt-1">
+        Videos you save or watch will appear here.
+      </p>
     </div>
   );
 };
